@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLB Sabermetric Engine</title>
+    <style>
+        :root {
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --border: #e2e8f0;
+            --green: #16a34a;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .title h1 { margin: 0; font-size: 2rem; color: var(--text-main); }
+        .title p { margin: 0; color: var(--text-muted); }
+        
+        .control-panel {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            align-items: flex-end;
+        }
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .input-group label { font-weight: 600; font-size: 0.9rem; }
+        .input-group input {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            font-size: 1rem;
+            width: 150px;
+        }
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        button:hover { background: var(--primary-hover); }
+        button:disabled { background: var(--text-muted); cursor: not-allowed; }
+
+        .dashboard {
+            background: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .summary-bar {
+            background: #f1f5f9;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        th, td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
+        .odds-input {
+            width: 80px;
+            padding: 0.4rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-align: center;
+        }
+        .positive { color: var(--green); font-weight: bold; }
+        .hidden { display: none; }
+        #status { font-weight: bold; color: var(--primary); margin-left: 1rem; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div class="title">
+            <h1>MLB Sabermetric Engine</h1>
+            <p>Monte Carlo Simulator & Kelly Value Dashboard</p>
+        </div>
+    </div>
+
+    <div class="control-panel">
+        <div class="input-group">
+            <label>Starting Bankroll ($)</label>
+            <input type="number" id="bankroll" value="1000">
+        </div>
+        <div class="input-group">
+            <label>Kelly Multiplier</label>
+            <input type="number" id="kelly-mult" value="0.05" step="0.01">
+        </div>
+        <button id="run-btn" onclick="runEngine()">Run Daily Engine</button>
+        <span id="status"></span>
+    </div>
+
+    <div class="dashboard hidden" id="dashboard">
+        <div class="summary-bar" id="summary-bar">
+            <span>Wagering 0.00 units on 0 games for a potential return of 0.00 units.</span>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Matchup</th>
+                    <th>Model Pick</th>
+                    <th>Win Prob</th>
+                    <th>Live Odds (Vegas)</th>
+                    <th>Wager (Units)</th>
+                    <th>Return</th>
+                    <th>Profit</th>
+                </tr>
+            </thead>
+            <tbody id="results-body">
+                </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // --- DICTIONARIES & CONSTANTS ---
+    const TEAM_MAP = {
+        'Arizona Diamondbacks': 'ARI', 'Atlanta Braves': 'ATL', 'Baltimore Orioles': 'BAL',
+        'Boston Red Sox': 'BOS', 'Chicago Cubs': 'CHC', 'Chicago White Sox': 'CHW',
+        'Cincinnati Reds': 'CIN', 'Cleveland Guardians': 'CLE', 'Colorado Rockies': 'COL',
+        'Detroit Tigers': 'DET', 'Houston Astros': 'HOU', 'Kansas City Royals': 'KCR',
+        'Los Angeles Angels': 'LAA', 'Los Angeles Dodgers': 'LAD', 'Miami Marlins': 'MIA',
+        'Milwaukee Brewers': 'MIL', 'Minnesota Twins': 'MIN', 'New York Mets': 'NYM',
+        'New York Yankees': 'NYY', 'Oakland Athletics': 'OAK', 'Philadelphia Phillies': 'PHI',
+        'Pittsburgh Pirates': 'PIT', 'San Diego Padres': 'SDP', 'San Francisco Giants': 'SFG',
+        'Seattle Mariners': 'SEA', 'St. Louis Cardinals': 'STL', 'Tampa Bay Rays': 'TBR',
+        'Texas Rangers': 'TEX', 'Toronto Blue Jays': 'TOR', 'Washington Nationals': 'WSN'
+    };
+
+    const PARK_FACTORS = {
+        'Colorado Rockies': 1.14, 'Cincinnati Reds': 1.12, 'Boston Red Sox': 1.08,
+        'Texas Rangers': 1.05, 'Atlanta Braves': 1.03, 'Kansas City Royals': 1.03,
+        'Philadelphia Phillies': 1.02, 'Los Angeles Dodgers': 1.01, 'New York Yankees': 1.01, 
+        'Chicago White Sox': 1.01, 'Arizona Diamondbacks': 1.00, 'Houston Astros': 1.00, 
+        'Toronto Blue Jays': 1.00, 'Washington Nationals': 0.99, 'Chicago Cubs': 0.99, 
+        'Milwaukee Brewers': 0.99, 'Minnesota Twins': 0.99, 'Baltimore Orioles': 0.98,
+        'Pittsburgh Pirates': 0.98, 'Los Angeles Angels': 0.98, 'Miami Marlins': 0.97,
+        'St. Louis Cardinals': 0.97, 'Tampa Bay Rays': 0.97, 'San Francisco Giants': 0.96,
+        'Detroit Tigers': 0.96, 'Oakland Athletics': 0.95, 'New York Mets': 0.95,
+        'Cleveland Guardians': 0.94, 'San Diego Padres': 0.92, 'Seattle Mariners': 0.91
+    };
+
+    let globalResults = [];
+
+    // --- UTILITY MATH FUNCTIONS ---
+    // JavaScript doesn't have a built-in Gaussian randomizer, so we build a Box-Muller transform
+    function randomGauss(mean, stdev) {
+        let u = 1 - Math.random(); 
+        let v = Math.random();
+        let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        return z * stdev + mean;
+    }
+
+    function calculateKelly(p_win, odds, multiplier) {
+        let p = p_win / 100.0;
+        let b = odds > 0 ? (odds / 100.0) : (100.0 / Math.abs(odds));
+        let edge = (p * b) - (1 - p);
+        if (edge <= 0) return 0.0;
+        let wager = (edge / b) * multiplier * 100;
+        return Math.min(parseFloat(wager.toFixed(2)), 2.5); // Max bet 2.5 units
+    }
+
+    function getDecimalOdds(american_odds) {
+        if (american_odds > 0) return parseFloat(((american_odds / 100.0) + 1).toFixed(2));
+        return parseFloat(((100.0 / Math.abs(american_odds)) + 1).toFixed(2));
+    }
+
+    // --- API FETCHERS ---
+    async function fetchJson(url) {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('API Error');
+        return await response.json();
+    }
+
+    async function getTodaysSchedule() {
+        // Automatically gets today's date in YYYY-MM-DD format
+        const today = new Date().toISOString().split('T')[0]; 
+        const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=probablePitcher`;
+        try {
+            const data = await fetchJson(url);
+            if (!data.dates || data.dates.length === 0) return [];
+            return data.dates[0].games.map(game => ({
+                away_name: game.teams.away.team.name, away_id: game.teams.away.team.id,
+                away_pitcher_id: game.teams.away.probablePitcher ? game.teams.away.probablePitcher.id : null,
+                home_name: game.teams.home.team.name, home_id: game.teams.home.team.id,
+                home_pitcher_id: game.teams.home.probablePitcher ? game.teams.home.probablePitcher.id : null,
+            }));
+        } catch (e) { return []; }
+    }
+
+    async function getTeamHitting(teamId) {
+        const year = new Date().getFullYear();
+        const url = `https://statsapi.mlb.com/api/v1/teams/${teamId}/stats?group=hitting&stats=season&season=${year}`;
+        try {
+            const data = await fetchJson(url);
+            return parseFloat(data.stats[0].splits[0].stat.ops);
+        } catch (e) { return 0.720; }
+    }
+
+    async function getPitchingStats(pitcherId, isBullpen = false) {
+        if (!pitcherId && !isBullpen) return { whip: 1.30, k9: 8.5 };
+        const year = new Date().getFullYear();
+        const endpoint = isBullpen ? `teams/${pitcherId}` : `people/${pitcherId}`;
+        const url = `https://statsapi.mlb.com/api/v1/${endpoint}/stats?stats=season&group=pitching&season=${year}`;
+        try {
+            const data = await fetchJson(url);
+            const stats = data.stats[0].splits[0].stat;
+            return {
+                whip: parseFloat(stats.whip || 1.30),
+                k9: parseFloat(stats.strikeoutsPer9Inn || 8.5)
+            };
+        } catch (e) { return { whip: 1.30, k9: 8.5 }; }
+    }
+
+    // --- MONTE CARLO ENGINE ---
+    function simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, home_team_name) {
+        const league_avg_runs = 4.5;
+        const factor = PARK_FACTORS[home_team_name] || 1.00;
+
+        const getPFactor = (p) => (p.whip / 1.30 * 0.7) + (8.5 / Math.max(p.k9, 1.0) * 0.3);
+
+        const a_combined_pitching = (getPFactor(a_starter) * 0.6) + (getPFactor(a_bullpen) * 0.4);
+        const b_combined_pitching = (getPFactor(b_starter) * 0.6) + (getPFactor(b_bullpen) * 0.4);
+
+        const a_exp = (league_avg_runs * factor) * (a_off / 0.720) * b_combined_pitching;
+        const b_exp = (league_avg_runs * factor) * (b_off / 0.720) * a_combined_pitching;
+
+        const uncertainty = 3.2;
+        let a_s = Math.max(0, Math.round(randomGauss(a_exp, uncertainty)));
+        let b_s = Math.max(0, Math.round(randomGauss(b_exp, uncertainty)));
+        
+        while (a_s === b_s) {
+            a_s += Math.random() > 0.5 ? 1 : 0;
+            b_s += Math.random() > 0.5 ? 1 : 0;
+        }
+        return a_s > b_s ? 'A' : 'B';
+    }
+
+    // --- MAIN EXECUTION ---
+    async function runEngine() {
+        const statusEl = document.getElementById('status');
+        const runBtn = document.getElementById('run-btn');
+        runBtn.disabled = true;
+        
+        statusEl.innerText = "Fetching Schedule...";
+        const games = await getTodaysSchedule();
+        if (games.length === 0) {
+            statusEl.innerText = "No games found for today.";
+            runBtn.disabled = false;
+            return;
+        }
+
+        statusEl.innerText = "Downloading Stats & Simulating 10,000 Games...";
+        globalResults = [];
+
+        for (let g of games) {
+            // Fetch everything concurrently for speed
+            const [a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen] = await Promise.all([
+                getTeamHitting(g.away_id), getTeamHitting(g.home_id),
+                getPitchingStats(g.away_pitcher_id), getPitchingStats(g.home_pitcher_id),
+                getPitchingStats(g.away_id, true), getPitchingStats(g.home_id, true)
+            ]);
+
+            let a_wins = 0;
+            for (let i = 0; i < 10000; i++) {
+                if (simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, g.home_name) === 'A') {
+                    a_wins++;
+                }
+            }
+
+            let a_p = (a_wins / 10000) * 100;
+            let h_p = (1 - (a_wins / 10000)) * 100;
+            
+            let fav_n = a_p > h_p ? g.away_name : g.home_name;
+            let fav_p = a_p > h_p ? a_p : h_p;
+
+            globalResults.push({
+                away: TEAM_MAP[g.away_name] || g.away_name,
+                home: TEAM_MAP[g.home_name] || g.home_name,
+                fav: TEAM_MAP[fav_n] || fav_n,
+                fav_p: fav_p.toFixed(1),
+                odds: "", wager: 0, return_val: 0, profit: 0
+            });
+        }
+
+        statusEl.innerText = "Simulations Complete!";
+        renderTable();
+        document.getElementById('dashboard').classList.remove('hidden');
+        runBtn.disabled = false;
+    }
+
+    // --- UI UPDATES ---
+    function handleOddsChange(index, oddsValue) {
+        let odds = parseInt(oddsValue);
+        if (isNaN(odds)) { odds = 0; }
+        
+        const mult = parseFloat(document.getElementById('kelly-mult').value);
+        let wager = calculateKelly(parseFloat(globalResults[index].fav_p), odds, mult);
+        let decOdds = getDecimalOdds(odds);
+        
+        globalResults[index].odds = odds;
+        globalResults[index].wager = odds === 0 ? 0 : wager;
+        globalResults[index].return_val = odds === 0 ? 0 : wager * decOdds;
+        globalResults[index].profit = odds === 0 ? 0 : (wager * decOdds) - wager;
+        
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('results-body');
+        tbody.innerHTML = '';
+        
+        let totalWager = 0;
+        let totalReturn = 0;
+        let activeGames = 0;
+
+        globalResults.forEach((res, i) => {
+            if(res.wager > 0) {
+                totalWager += res.wager;
+                totalReturn += res.return_val;
+                activeGames++;
+            }
+
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${res.away} @ ${res.home}</td>
+                <td><strong>${res.fav}</strong></td>
+                <td>${res.fav_p}%</td>
+                <td><input type="number" class="odds-input" placeholder="-110" value="${res.odds}" oninput="handleOddsChange(${i}, this.value)"></td>
+                <td class="${res.wager > 0 ? 'positive' : ''}">${res.wager > 0 ? res.wager.toFixed(2) : '-'}</td>
+                <td>${res.return_val > 0 ? res.return_val.toFixed(2) : '-'}</td>
+                <td class="${res.profit > 0 ? 'positive' : ''}">${res.profit > 0 ? '+' + res.profit.toFixed(2) : '-'}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        const summaryBar = document.getElementById('summary-bar');
+        if (activeGames === 0) {
+            summaryBar.innerHTML = `<span>Awaiting Vegas odds input to calculate edges.</span>`;
+        } else {
+            let totalProfit = totalReturn - totalWager;
+            let roi = Math.round((totalProfit / totalWager) * 100);
+            summaryBar.innerHTML = `
+                <span>Wagering <strong>${totalWager.toFixed(2)} units</strong> on <strong>${activeGames} games</strong> for a potential return of <strong>${totalReturn.toFixed(2)} units</strong>.</span>
+                <span class="positive">Proj. Profit: +${totalProfit.toFixed(2)} units (${roi}% ROI)</span>
+            `;
+        }
+    }
+</script>
+</body>
+</html>

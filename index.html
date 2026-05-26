@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLB Sabermetric Engine</title>
+    <title>Strikepoint MLB Model</title>
     <style>
         :root {
             --bg-color: #f8fafc;
@@ -11,7 +11,6 @@
             --text-main: #0f172a;
             --text-muted: #64748b;
             --primary: #2563eb;
-            --primary-hover: #1d4ed8;
             --border: #e2e8f0;
             --green: #16a34a;
         }
@@ -22,126 +21,68 @@
             margin: 0;
             padding: 2rem;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
-        .title h1 { margin: 0; font-size: 2rem; color: var(--text-main); }
-        .title p { margin: 0; color: var(--text-muted); }
+        .container { max-width: 1200px; margin: 0 auto; }
+        .header { text-align: center; margin-bottom: 3rem; }
+        .header h1 { margin: 0; font-size: 2.5rem; color: var(--text-main); letter-spacing: -1px;}
+        .header p { margin: 10px 0 0 0; color: var(--text-muted); font-size: 1.1rem; }
         
-        .control-panel {
+        .loading-state {
+            text-align: center;
+            padding: 4rem;
             background: var(--card-bg);
-            padding: 1.5rem;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            align-items: flex-end;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        .input-group label { font-weight: 600; font-size: 0.9rem; }
-        .input-group input {
-            padding: 0.5rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            font-size: 1rem;
-            width: 150px;
-        }
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.6rem 1.5rem;
-            border-radius: 4px;
-            font-size: 1rem;
+            font-size: 1.2rem;
+            color: var(--primary);
             font-weight: bold;
-            cursor: pointer;
-            transition: background 0.2s;
         }
-        button:hover { background: var(--primary-hover); }
-        button:disabled { background: var(--text-muted); cursor: not-allowed; }
 
         .dashboard {
             background: var(--card-bg);
             border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
             overflow: hidden;
         }
         .summary-bar {
             background: #f1f5f9;
-            padding: 1rem 1.5rem;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border);
             font-weight: 600;
             display: flex;
             justify-content: space-between;
+            font-size: 1.1rem;
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            text-align: left;
-        }
-        th, td { padding: 1rem 1.5rem; border-bottom: 1px solid var(--border); }
-        th { background: #f8fafc; font-weight: 600; color: var(--text-muted); }
-        .odds-input {
-            width: 80px;
-            padding: 0.4rem;
-            border: 1px solid var(--border);
-            border-radius: 4px;
-            text-align: center;
-        }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); }
+        th { background: #ffffff; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;}
         .positive { color: var(--green); font-weight: bold; }
         .hidden { display: none; }
-        #status { font-weight: bold; color: var(--primary); margin-left: 1rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div class="title">
-            <h1>MLB Sabermetric Engine</h1>
-            <p>Monte Carlo Simulator & Kelly Value Dashboard</p>
-        </div>
+        <h1>Strikepoint MLB Model</h1>
+        <p>Mathematical Edge & Kelly Value Projections</p>
     </div>
 
-    <div class="control-panel">
-        <div class="input-group">
-            <label>Starting Bankroll ($)</label>
-            <input type="number" id="bankroll" value="1000">
-        </div>
-        <div class="input-group">
-            <label>Kelly Multiplier</label>
-            <input type="number" id="kelly-mult" value="0.05" step="0.01">
-        </div>
-        <button id="run-btn" onclick="runEngine()">Run Daily Engine</button>
-        <span id="status"></span>
+    <div id="loading" class="loading-state">
+        ⏳ Synchronizing Data & Running 10,000 Monte Carlo Simulations...
     </div>
 
     <div class="dashboard hidden" id="dashboard">
         <div class="summary-bar" id="summary-bar">
-            <span>Wagering 0.00 units on 0 games for a potential return of 0.00 units.</span>
-        </div>
+            </div>
         <table>
             <thead>
                 <tr>
                     <th>Matchup</th>
                     <th>Model Pick</th>
                     <th>Win Prob</th>
-                    <th>Live Odds (Vegas)</th>
+                    <th>Vegas Line</th>
                     <th>Wager (Units)</th>
-                    <th>Return</th>
-                    <th>Profit</th>
+                    <th>Proj. Return</th>
                 </tr>
             </thead>
             <tbody id="results-body">
@@ -151,6 +92,14 @@
 </div>
 
 <script>
+    // ==========================================
+    // 🛑 PASTE YOUR GOOGLE SHEET CSV LINK HERE
+    // ==========================================
+    const SHEET_CSV_URL = https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv;
+    
+    // User Settings (Locked for public view)
+    const KELLY_MULTIPLIER = 0.05;
+
     // --- DICTIONARIES & CONSTANTS ---
     const TEAM_MAP = {
         'Arizona Diamondbacks': 'ARI', 'Atlanta Braves': 'ATL', 'Baltimore Orioles': 'BAL',
@@ -180,11 +129,9 @@
 
     let globalResults = [];
 
-    // --- UTILITY MATH FUNCTIONS ---
-    // JavaScript doesn't have a built-in Gaussian randomizer, so we build a Box-Muller transform
+    // --- MATH ENGINE ---
     function randomGauss(mean, stdev) {
-        let u = 1 - Math.random(); 
-        let v = Math.random();
+        let u = 1 - Math.random(); let v = Math.random();
         let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         return z * stdev + mean;
     }
@@ -194,8 +141,7 @@
         let b = odds > 0 ? (odds / 100.0) : (100.0 / Math.abs(odds));
         let edge = (p * b) - (1 - p);
         if (edge <= 0) return 0.0;
-        let wager = (edge / b) * multiplier * 100;
-        return Math.min(parseFloat(wager.toFixed(2)), 2.5); // Max bet 2.5 units
+        return Math.min(parseFloat(((edge / b) * multiplier * 100).toFixed(2)), 2.5);
     }
 
     function getDecimalOdds(american_odds) {
@@ -210,8 +156,30 @@
         return await response.json();
     }
 
+    async function getSheetOdds() {
+        if(SHEET_CSV_URL === "PASTE_YOUR_LINK_HERE") return {};
+        try {
+            const response = await fetch(SHEET_CSV_URL);
+            const csvText = await response.text();
+            const lines = csvText.split('\n');
+            let oddsMap = {};
+            for (let i = 1; i < lines.length; i++) {
+                if(!lines[i].trim()) continue;
+                let parts = lines[i].split(',');
+                if (parts.length >= 2) {
+                    let team = parts[0].trim().toUpperCase();
+                    let odds = parseInt(parts[1].trim());
+                    oddsMap[team] = isNaN(odds) ? 0 : odds;
+                }
+            }
+            return oddsMap;
+        } catch (e) {
+            console.error("Could not fetch Google Sheet:", e);
+            return {};
+        }
+    }
+
     async function getTodaysSchedule() {
-        // Automatically gets today's date in YYYY-MM-DD format
         const today = new Date().toISOString().split('T')[0]; 
         const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=probablePitcher`;
         try {
@@ -229,10 +197,8 @@
     async function getTeamHitting(teamId) {
         const year = new Date().getFullYear();
         const url = `https://statsapi.mlb.com/api/v1/teams/${teamId}/stats?group=hitting&stats=season&season=${year}`;
-        try {
-            const data = await fetchJson(url);
-            return parseFloat(data.stats[0].splits[0].stat.ops);
-        } catch (e) { return 0.720; }
+        try { return parseFloat((await fetchJson(url)).stats[0].splits[0].stat.ops); } 
+        catch (e) { return 0.720; }
     }
 
     async function getPitchingStats(pitcherId, isBullpen = false) {
@@ -241,58 +207,40 @@
         const endpoint = isBullpen ? `teams/${pitcherId}` : `people/${pitcherId}`;
         const url = `https://statsapi.mlb.com/api/v1/${endpoint}/stats?stats=season&group=pitching&season=${year}`;
         try {
-            const data = await fetchJson(url);
-            const stats = data.stats[0].splits[0].stat;
-            return {
-                whip: parseFloat(stats.whip || 1.30),
-                k9: parseFloat(stats.strikeoutsPer9Inn || 8.5)
-            };
+            const stats = (await fetchJson(url)).stats[0].splits[0].stat;
+            return { whip: parseFloat(stats.whip || 1.30), k9: parseFloat(stats.strikeoutsPer9Inn || 8.5) };
         } catch (e) { return { whip: 1.30, k9: 8.5 }; }
     }
 
-    // --- MONTE CARLO ENGINE ---
+    // --- MONTE CARLO ---
     function simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, home_team_name) {
-        const league_avg_runs = 4.5;
         const factor = PARK_FACTORS[home_team_name] || 1.00;
-
         const getPFactor = (p) => (p.whip / 1.30 * 0.7) + (8.5 / Math.max(p.k9, 1.0) * 0.3);
-
-        const a_combined_pitching = (getPFactor(a_starter) * 0.6) + (getPFactor(a_bullpen) * 0.4);
-        const b_combined_pitching = (getPFactor(b_starter) * 0.6) + (getPFactor(b_bullpen) * 0.4);
-
-        const a_exp = (league_avg_runs * factor) * (a_off / 0.720) * b_combined_pitching;
-        const b_exp = (league_avg_runs * factor) * (b_off / 0.720) * a_combined_pitching;
-
-        const uncertainty = 3.2;
-        let a_s = Math.max(0, Math.round(randomGauss(a_exp, uncertainty)));
-        let b_s = Math.max(0, Math.round(randomGauss(b_exp, uncertainty)));
+        const a_pitching = (getPFactor(a_starter) * 0.6) + (getPFactor(a_bullpen) * 0.4);
+        const b_pitching = (getPFactor(b_starter) * 0.6) + (getPFactor(b_bullpen) * 0.4);
+        const a_exp = (4.5 * factor) * (a_off / 0.720) * b_pitching;
+        const b_exp = (4.5 * factor) * (b_off / 0.720) * a_pitching;
         
-        while (a_s === b_s) {
-            a_s += Math.random() > 0.5 ? 1 : 0;
-            b_s += Math.random() > 0.5 ? 1 : 0;
-        }
+        let a_s = Math.max(0, Math.round(randomGauss(a_exp, 3.2)));
+        let b_s = Math.max(0, Math.round(randomGauss(b_exp, 3.2)));
+        while (a_s === b_s) { a_s += Math.random() > 0.5 ? 1 : 0; b_s += Math.random() > 0.5 ? 1 : 0; }
         return a_s > b_s ? 'A' : 'B';
     }
 
-    // --- MAIN EXECUTION ---
+    // --- MAIN AUTO-RUNNER ---
     async function runEngine() {
-        const statusEl = document.getElementById('status');
-        const runBtn = document.getElementById('run-btn');
-        runBtn.disabled = true;
-        
-        statusEl.innerText = "Fetching Schedule...";
         const games = await getTodaysSchedule();
         if (games.length === 0) {
-            statusEl.innerText = "No games found for today.";
-            runBtn.disabled = false;
+            document.getElementById('loading').innerText = "No games scheduled for today.";
             return;
         }
 
-        statusEl.innerText = "Downloading Stats & Simulating 10,000 Games...";
+        // Pull the odds from your secret Google Sheet!
+        const oddsData = await getSheetOdds();
+
         globalResults = [];
 
         for (let g of games) {
-            // Fetch everything concurrently for speed
             const [a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen] = await Promise.all([
                 getTeamHitting(g.away_id), getTeamHitting(g.home_id),
                 getPitchingStats(g.away_pitcher_id), getPitchingStats(g.home_pitcher_id),
@@ -301,89 +249,85 @@
 
             let a_wins = 0;
             for (let i = 0; i < 10000; i++) {
-                if (simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, g.home_name) === 'A') {
-                    a_wins++;
-                }
+                if (simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, g.home_name) === 'A') a_wins++;
             }
 
             let a_p = (a_wins / 10000) * 100;
             let h_p = (1 - (a_wins / 10000)) * 100;
-            
             let fav_n = a_p > h_p ? g.away_name : g.home_name;
+            let fav_code = TEAM_MAP[fav_n] || fav_n;
             let fav_p = a_p > h_p ? a_p : h_p;
+
+            // Automatically check your Google Sheet for the odds of the favored team
+            let vegasOdds = oddsData[fav_code] || 0;
+            
+            let wager = 0;
+            let return_val = 0;
+            if (vegasOdds !== 0) {
+                wager = calculateKelly(fav_p, vegasOdds, KELLY_MULTIPLIER);
+                return_val = wager > 0 ? wager * getDecimalOdds(vegasOdds) : 0;
+            }
 
             globalResults.push({
                 away: TEAM_MAP[g.away_name] || g.away_name,
                 home: TEAM_MAP[g.home_name] || g.home_name,
-                fav: TEAM_MAP[fav_n] || fav_n,
+                fav: fav_code,
                 fav_p: fav_p.toFixed(1),
-                odds: "", wager: 0, return_val: 0, profit: 0
+                odds: vegasOdds,
+                wager: wager,
+                return_val: return_val
             });
         }
 
-        statusEl.innerText = "Simulations Complete!";
+        document.getElementById('loading').classList.add('hidden');
         renderTable();
         document.getElementById('dashboard').classList.remove('hidden');
-        runBtn.disabled = false;
-    }
-
-    // --- UI UPDATES ---
-    function handleOddsChange(index, oddsValue) {
-        let odds = parseInt(oddsValue);
-        if (isNaN(odds)) { odds = 0; }
-        
-        const mult = parseFloat(document.getElementById('kelly-mult').value);
-        let wager = calculateKelly(parseFloat(globalResults[index].fav_p), odds, mult);
-        let decOdds = getDecimalOdds(odds);
-        
-        globalResults[index].odds = odds;
-        globalResults[index].wager = odds === 0 ? 0 : wager;
-        globalResults[index].return_val = odds === 0 ? 0 : wager * decOdds;
-        globalResults[index].profit = odds === 0 ? 0 : (wager * decOdds) - wager;
-        
-        renderTable();
     }
 
     function renderTable() {
         const tbody = document.getElementById('results-body');
-        tbody.innerHTML = '';
-        
-        let totalWager = 0;
-        let totalReturn = 0;
-        let activeGames = 0;
+        let totalWager = 0, totalReturn = 0, activeGames = 0;
 
-        globalResults.forEach((res, i) => {
+        // Sort results so games with active wagers show up at the top!
+        globalResults.sort((a, b) => b.wager - a.wager);
+
+        globalResults.forEach(res => {
             if(res.wager > 0) {
                 totalWager += res.wager;
                 totalReturn += res.return_val;
                 activeGames++;
             }
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${res.away} @ ${res.home}</td>
-                <td><strong>${res.fav}</strong></td>
-                <td>${res.fav_p}%</td>
-                <td><input type="number" class="odds-input" placeholder="-110" value="${res.odds}" oninput="handleOddsChange(${i}, this.value)"></td>
-                <td class="${res.wager > 0 ? 'positive' : ''}">${res.wager > 0 ? res.wager.toFixed(2) : '-'}</td>
-                <td>${res.return_val > 0 ? res.return_val.toFixed(2) : '-'}</td>
-                <td class="${res.profit > 0 ? 'positive' : ''}">${res.profit > 0 ? '+' + res.profit.toFixed(2) : '-'}</td>
-            `;
-            tbody.appendChild(tr);
+            // Only show rows if you entered odds for them OR if we want to show all games.
+            // Let's hide games with 0 wager to make it look super clean.
+            if (res.wager > 0 || res.odds !== 0) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${res.away} @ ${res.home}</td>
+                    <td><strong>${res.fav}</strong></td>
+                    <td>${res.fav_p}%</td>
+                    <td>${res.odds > 0 ? '+' + res.odds : res.odds}</td>
+                    <td class="positive">${res.wager.toFixed(2)} u</td>
+                    <td>${res.return_val.toFixed(2)} u</td>
+                `;
+                tbody.appendChild(tr);
+            }
         });
 
         const summaryBar = document.getElementById('summary-bar');
         if (activeGames === 0) {
-            summaryBar.innerHTML = `<span>Awaiting Vegas odds input to calculate edges.</span>`;
+            summaryBar.innerHTML = `<span>Awaiting Vegas lines for today's model picks.</span>`;
         } else {
-            let totalProfit = totalReturn - totalWager;
-            let roi = Math.round((totalProfit / totalWager) * 100);
+            let profit = totalReturn - totalWager;
             summaryBar.innerHTML = `
-                <span>Wagering <strong>${totalWager.toFixed(2)} units</strong> on <strong>${activeGames} games</strong> for a potential return of <strong>${totalReturn.toFixed(2)} units</strong>.</span>
-                <span class="positive">Proj. Profit: +${totalProfit.toFixed(2)} units (${roi}% ROI)</span>
+                <span>Total Exposure: <strong>${totalWager.toFixed(2)} units</strong> on ${activeGames} active plays.</span>
+                <span class="positive">Proj. Profit: +${profit.toFixed(2)} u</span>
             `;
         }
     }
+
+    // Start the engine as soon as the page loads!
+    window.onload = runEngine;
 </script>
 </body>
 </html>

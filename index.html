@@ -7,13 +7,13 @@
     <style>
         :root {
             /* Dark Mode Minimalist Palette */
-            --bg-color: #0b0d10;          /* Deepest black/gray for main background */
-            --card-bg: #13151a;           /* Slightly lighter for the main dashboard */
-            --card-alt: #1a1c23;          /* For headers and summary bar */
-            --text-main: #f1f5f9;         /* Crisp off-white */
-            --text-muted: #8b949e;        /* Professional slate gray */
-            --border: #252830;            /* Very subtle divider lines */
-            --green: #10b981;             /* Vibrant emerald green for profit/units */
+            --bg-color: #0b0d10;          
+            --card-bg: #13151a;           
+            --card-alt: #1a1c23;          
+            --text-main: #f1f5f9;         
+            --text-muted: #8b949e;        
+            --border: #252830;            
+            --green: #10b981;             
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -21,11 +21,11 @@
             color: var(--text-main);
             margin: 0;
             padding: 3rem 2rem;
-            -webkit-font-smoothing: antialiased; /* Makes text super crisp on dark backgrounds */
+            -webkit-font-smoothing: antialiased; 
             -moz-osx-font-smoothing: grayscale;
         }
         .container { 
-            max-width: 1050px; /* Slightly narrower for a tighter, cleaner look */
+            max-width: 1050px; 
             margin: 0 auto; 
         }
         .header { 
@@ -37,7 +37,7 @@
             font-size: 2.5rem; 
             color: var(--text-main); 
             font-weight: 700;
-            letter-spacing: -1.2px; /* Tight, modern title tracking */
+            letter-spacing: -1.2px; 
         }
         .header p { 
             margin: 8px 0 0 0; 
@@ -61,7 +61,7 @@
             background: var(--card-bg);
             border-radius: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); /* Soft, deep shadow */
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
             overflow: hidden;
         }
         .summary-bar {
@@ -89,9 +89,8 @@
             color: var(--text-muted); 
             text-transform: uppercase; 
             font-size: 0.75rem; 
-            letter-spacing: 1.5px; /* Wide tracking for modern column headers */
+            letter-spacing: 1.5px; 
         }
-        /* Remove the bottom border from the very last row so it looks clean */
         tr:last-child td { border-bottom: none; }
         
         .positive { color: var(--green); font-weight: 600; }
@@ -132,9 +131,9 @@
 
 <script>
     // ==========================================
-    // 🛑 PASTE YOUR GOOGLE SHEET CSV LINK HERE
+    // 🛑 PASTE YOUR GOOGLE SHEET CSV LINK HERE (Keep the quotes!)
     // ==========================================
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv";
+    const SHEET_CSV_URL = "PASTE_YOUR_LINK_HERE";
     
     // User Settings (Locked for public view)
     const KELLY_MULTIPLIER = 0.05;
@@ -196,7 +195,7 @@
     }
 
     async function getSheetOdds() {
-        if(SHEET_CSV_URL === "PASTE_YOUR_LINK_HERE") return {};
+        if(SHEET_CSV_URL === "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv") return {};
         try {
             const response = await fetch(SHEET_CSV_URL);
             const csvText = await response.text();
@@ -274,9 +273,7 @@
             return;
         }
 
-        // Pull the odds from your secret Google Sheet!
         const oddsData = await getSheetOdds();
-
         globalResults = [];
 
         for (let g of games) {
@@ -297,7 +294,6 @@
             let fav_code = TEAM_MAP[fav_n] || fav_n;
             let fav_p = a_p > h_p ? a_p : h_p;
 
-            // Automatically check your Google Sheet for the odds of the favored team
             let vegasOdds = oddsData[fav_code] || 0;
             
             let wager = 0;
@@ -325,16 +321,15 @@
 
     function renderTable() {
         const tbody = document.getElementById('results-body');
+        tbody.innerHTML = ''; // Ensure the table is fresh
+        
         let totalWager = 0, totalReturn = 0, activeGames = 0, oddsCount = 0;
 
-        // Sort results so games with active wagers show up at the top
         globalResults.sort((a, b) => b.wager - a.wager);
 
         globalResults.forEach(res => {
-            // Count how many games actually have odds entered from the sheet
             if (res.odds !== 0) oddsCount++;
 
-            // ONLY execute if the wager is greater than 0
             if(res.wager > 0) {
                 totalWager += res.wager;
                 totalReturn += res.return_val;
@@ -355,9 +350,8 @@
 
         const summaryBar = document.getElementById('summary-bar');
         
-        // Accurately report what is happening under the hood
         if (oddsCount === 0) {
-            summaryBar.innerHTML = `<span style="color: var(--text-muted);">Awaiting Vegas lines from Google Sheets...</span>`;
+            summaryBar.innerHTML = `<span style="color: var(--text-muted);">Awaiting Vegas lines from Source...</span>`;
         } else if (oddsCount > 0 && activeGames === 0) {
             summaryBar.innerHTML = `<span style="color: var(--text-muted);">Odds loaded for ${oddsCount} games. No profitable edge found. Model passes.</span>`;
         } else {
@@ -369,19 +363,6 @@
         }
     }
 
-        const summaryBar = document.getElementById('summary-bar');
-        if (activeGames === 0) {
-            summaryBar.innerHTML = `<span style="color: var(--text-muted);">Awaiting Vegas lines for today's model picks.</span>`;
-        } else {
-            let profit = totalReturn - totalWager;
-            summaryBar.innerHTML = `
-                <span>Total Wager: <strong>${totalWager.toFixed(2)} units</strong> on <strong>${activeGames} games</strong>.</span>
-                <span class="positive">Proj. Profit: +${profit.toFixed(2)} u</span>
-            `;
-        }
-    }
-
-    // Start the engine as soon as the page loads!
     window.onload = runEngine;
 </script>
 </body>

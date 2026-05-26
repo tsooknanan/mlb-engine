@@ -3,59 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Strikepoint MLB Model</title>
+    <title>Strikepoint</title>
     <style>
         :root {
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
-            --primary: #2563eb;
-            --border: #e2e8f0;
-            --green: #16a34a;
+            /* Dark Mode Minimalist Palette */
+            --bg-color: #0b0d10;          /* Deepest black/gray for main background */
+            --card-bg: #13151a;           /* Slightly lighter for the main dashboard */
+            --card-alt: #1a1c23;          /* For headers and summary bar */
+            --text-main: #f1f5f9;         /* Crisp off-white */
+            --text-muted: #8b949e;        /* Professional slate gray */
+            --border: #252830;            /* Very subtle divider lines */
+            --green: #10b981;             /* Vibrant emerald green for profit/units */
         }
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 2rem;
+            padding: 3rem 2rem;
+            -webkit-font-smoothing: antialiased; /* Makes text super crisp on dark backgrounds */
+            -moz-osx-font-smoothing: grayscale;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 3rem; }
-        .header h1 { margin: 0; font-size: 2.5rem; color: var(--text-main); letter-spacing: -1px;}
-        .header p { margin: 10px 0 0 0; color: var(--text-muted); font-size: 1.1rem; }
+        .container { 
+            max-width: 1050px; /* Slightly narrower for a tighter, cleaner look */
+            margin: 0 auto; 
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 4rem; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 2.5rem; 
+            color: var(--text-main); 
+            font-weight: 700;
+            letter-spacing: -1.2px; /* Tight, modern title tracking */
+        }
+        .header p { 
+            margin: 8px 0 0 0; 
+            color: var(--text-muted); 
+            font-size: 1rem; 
+            letter-spacing: 0.5px;
+        }
         
         .loading-state {
             text-align: center;
-            padding: 4rem;
+            padding: 5rem 2rem;
             background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            font-size: 1.2rem;
-            color: var(--primary);
-            font-weight: bold;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            font-size: 1rem;
+            letter-spacing: 0.5px;
         }
 
         .dashboard {
             background: var(--card-bg);
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4); /* Soft, deep shadow */
             overflow: hidden;
         }
         .summary-bar {
-            background: #f1f5f9;
-            padding: 1.5rem;
+            background: var(--card-alt);
+            padding: 1.5rem 2rem;
             border-bottom: 1px solid var(--border);
-            font-weight: 600;
+            font-weight: 500;
             display: flex;
             justify-content: space-between;
-            font-size: 1.1rem;
+            font-size: 1rem;
+            color: var(--text-main);
         }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 1.2rem 1.5rem; border-bottom: 1px solid var(--border); }
-        th { background: #ffffff; font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px;}
-        .positive { color: var(--green); font-weight: bold; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            text-align: left; 
+        }
+        th, td { 
+            padding: 1.2rem 2rem; 
+            border-bottom: 1px solid var(--border); 
+        }
+        th { 
+            background: var(--card-alt); 
+            font-weight: 600; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            letter-spacing: 1.5px; /* Wide tracking for modern column headers */
+        }
+        /* Remove the bottom border from the very last row so it looks clean */
+        tr:last-child td { border-bottom: none; }
+        
+        .positive { color: var(--green); font-weight: 600; }
         .hidden { display: none; }
     </style>
 </head>
@@ -63,12 +102,12 @@
 
 <div class="container">
     <div class="header">
-        <h1>Strikepoint MLB Model</h1>
+        <h1>Strikepoint</h1>
         <p>Mathematical Edge & Kelly Value Projections</p>
     </div>
 
     <div id="loading" class="loading-state">
-        ⏳ Synchronizing Data & Running 10,000 Monte Carlo Simulations...
+        Synchronizing Data & Running 10,000 Monte Carlo Simulations...
     </div>
 
     <div class="dashboard hidden" id="dashboard">
@@ -95,7 +134,7 @@
     // ==========================================
     // 🛑 PASTE YOUR GOOGLE SHEET CSV LINK HERE
     // ==========================================
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv";
+    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pubhtml";
     
     // User Settings (Locked for public view)
     const KELLY_MULTIPLIER = 0.05;
@@ -288,19 +327,16 @@
         const tbody = document.getElementById('results-body');
         let totalWager = 0, totalReturn = 0, activeGames = 0;
 
-        // Sort results so games with active wagers show up at the top!
+        // Sort results so games with active wagers show up at the top
         globalResults.sort((a, b) => b.wager - a.wager);
 
         globalResults.forEach(res => {
+            // ONLY execute if the wager is greater than 0
             if(res.wager > 0) {
                 totalWager += res.wager;
                 totalReturn += res.return_val;
                 activeGames++;
-            }
 
-            // Only show rows if you entered odds for them OR if we want to show all games.
-            // Let's hide games with 0 wager to make it look super clean.
-            if (res.wager > 0 || res.odds !== 0) {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
                     <td>${res.away} @ ${res.home}</td>
@@ -308,7 +344,7 @@
                     <td>${res.fav_p}%</td>
                     <td>${res.odds > 0 ? '+' + res.odds : res.odds}</td>
                     <td class="positive">${res.wager.toFixed(2)} u</td>
-                    <td>${res.return_val.toFixed(2)} u</td>
+                    <td class="positive">${res.return_val.toFixed(2)} u</td>
                 `;
                 tbody.appendChild(tr);
             }
@@ -316,11 +352,11 @@
 
         const summaryBar = document.getElementById('summary-bar');
         if (activeGames === 0) {
-            summaryBar.innerHTML = `<span>Awaiting Vegas lines for today's model picks.</span>`;
+            summaryBar.innerHTML = `<span style="color: var(--text-muted);">Awaiting Vegas lines for today's model picks.</span>`;
         } else {
             let profit = totalReturn - totalWager;
             summaryBar.innerHTML = `
-                <span>Total Exposure: <strong>${totalWager.toFixed(2)} units</strong> on ${activeGames} active plays.</span>
+                <span>Total Wager: <strong>${totalWager.toFixed(2)} units</strong> on <strong>${activeGames} games</strong>.</span>
                 <span class="positive">Proj. Profit: +${profit.toFixed(2)} u</span>
             `;
         }

@@ -195,24 +195,34 @@
     }
 
     async function getSheetOdds() {
+        // Only return empty if the user hasn't replaced the placeholder yet
         if(SHEET_CSV_URL === "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv") return {};
+        
         try {
             const response = await fetch(SHEET_CSV_URL);
+            if (!response.ok) throw new Error("Could not reach sheet");
+            
             const csvText = await response.text();
             const lines = csvText.split('\n');
             let oddsMap = {};
+            
+            // Loop through lines, skipping the header (i=1)
             for (let i = 1; i < lines.length; i++) {
-                if(!lines[i].trim()) continue;
-                let parts = lines[i].split(',');
+                let row = lines[i].trim();
+                if(!row) continue;
+                
+                let parts = row.split(',');
                 if (parts.length >= 2) {
                     let team = parts[0].trim().toUpperCase();
                     let odds = parseInt(parts[1].trim());
-                    oddsMap[team] = isNaN(odds) ? 0 : odds;
+                    if (!isNaN(odds)) {
+                        oddsMap[team] = odds;
+                    }
                 }
             }
             return oddsMap;
         } catch (e) {
-            console.error("Could not fetch Google Sheet:", e);
+            console.error("Sheet Fetch Error:", e);
             return {};
         }
     }
@@ -321,15 +331,13 @@
 
     function renderTable() {
         const tbody = document.getElementById('results-body');
-        tbody.innerHTML = ''; // Ensure the table is fresh
+        tbody.innerHTML = ''; 
         
         let totalWager = 0, totalReturn = 0, activeGames = 0, oddsCount = 0;
-
         globalResults.sort((a, b) => b.wager - a.wager);
 
         globalResults.forEach(res => {
             if (res.odds !== 0) oddsCount++;
-
             if(res.wager > 0) {
                 totalWager += res.wager;
                 totalReturn += res.return_val;
@@ -343,10 +351,12 @@
                     <td>${res.odds > 0 ? '+' + res.odds : res.odds}</td>
                     <td class="positive">${res.wager.toFixed(2)}</td>
                     <td class="positive">${res.return_val.toFixed(2)}</td>
-                `;
+                `; // <--- Added the missing end of the row
                 tbody.appendChild(tr);
             }
         });
+        // ... rest of your summaryBar logic ...
+    }
 
         const summaryBar = document.getElementById('summary-bar');
         

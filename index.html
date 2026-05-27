@@ -217,7 +217,7 @@
         .table-responsive {
             width: 100%;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+            -webkit-overflow-scrolling: touch;
         }
 
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
@@ -279,12 +279,8 @@
            📱 MOBILE RESPONSIVE MEDIA QUERIES 📱
            ========================================== */
         @media (max-width: 768px) {
-            /* Flip layout to put sidebar on bottom */
-            body {
-                flex-direction: column-reverse; 
-            }
+            body { flex-direction: column-reverse; }
             
-            /* Convert Sidebar to Bottom App Navigation */
             .sidebar {
                 width: 100%;
                 height: 70px;
@@ -293,17 +289,15 @@
                 border-right: none;
                 border-top: 1px solid var(--border);
                 padding-top: 0;
-                background-color: var(--sidebar-bg); /* Ensure it stays solid */
+                background-color: var(--sidebar-bg); 
             }
             
-            .logo-box {
-                display: none; /* Hide logo to save space on mobile */
-            }
+            .logo-box { display: none; }
             
             .nav-item {
                 padding: 0.5rem 0;
                 border-left: none;
-                border-top: 3px solid transparent; /* Move active indicator to top */
+                border-top: 3px solid transparent; 
                 justify-content: center;
                 font-size: 0.65rem;
             }
@@ -313,41 +307,15 @@
                 border-top: 3px solid var(--accent);
             }
 
-            .nav-item svg {
-                width: 22px;
-                height: 22px;
-                margin-bottom: 4px;
-            }
-
-            /* Adjust Content Area */
-            .section {
-                padding: 2rem 1rem;
-            }
-
-            /* Scale down Typography */
+            .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; }
+            .section { padding: 2rem 1rem; }
             .hero h1 { font-size: 3rem; letter-spacing: -1px; }
             .hero p { font-size: 1rem; }
             .header h2 { font-size: 1.5rem; }
-
-            /* Make Summary Bars Stack vertically */
-            .summary-bar {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            /* Header Tops (Title + Buttons) */
-            .header-top {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1rem;
-            }
-
-            .sub-nav {
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            th, td { padding: 1rem; } /* Tighter tables */
+            .summary-bar { flex-direction: column; align-items: flex-start; }
+            .header-top { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .sub-nav { width: 100%; box-sizing: border-box; }
+            th, td { padding: 1rem; }
         }
     </style>
 </head>
@@ -506,7 +474,6 @@
     // ==========================================
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv";
     
-    // YOUR BANKROLL TRACKER CSV LINK
     const HISTORY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=1736165511&single=true&output=csv";
     
     const KELLY_MULTIPLIER = 0.05;
@@ -539,9 +506,25 @@
 
     let globalResults = [];
 
-    // --- MATH ENGINE ---
+    // ==========================================
+    // --- MATH ENGINE (UPDATED WITH SEEDED PRNG) ---
+    // ==========================================
+    
+    // Seed variable for deterministic pseudo-random number generation
+    let prngSeed = 1;
+
+    // Mulberry32 PRNG (Ensures the exact same 10k simulations play out on every refresh)
+    function seededRandom() {
+        let t = prngSeed += 0x6D2B79F5;
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    }
+
     function randomGauss(mean, stdev) {
-        let u = 1 - Math.random(); let v = Math.random();
+        // Now using our seeded random instead of standard Math.random()
+        let u = 1 - seededRandom(); 
+        let v = seededRandom();
         let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
         return z * stdev + mean;
     }
@@ -629,7 +612,12 @@
         
         let a_s = Math.max(0, Math.round(randomGauss(a_exp, 3.2)));
         let b_s = Math.max(0, Math.round(randomGauss(b_exp, 3.2)));
-        while (a_s === b_s) { a_s += Math.random() > 0.5 ? 1 : 0; b_s += Math.random() > 0.5 ? 1 : 0; }
+        
+        // Use seededRandom() for tie-breakers too
+        while (a_s === b_s) { 
+            a_s += seededRandom() > 0.5 ? 1 : 0; 
+            b_s += seededRandom() > 0.5 ? 1 : 0; 
+        }
         return a_s > b_s ? 'A' : 'B';
     }
 
@@ -645,6 +633,13 @@
         globalResults = [];
 
         for (let g of games) {
+            
+            // 🔥 UNIQUE SEED GENERATION 🔥
+            // This mathematically binds the randomization sequence to today's date + the teams playing.
+            const todayDate = new Date();
+            const dateInt = todayDate.getFullYear() * 10000 + (todayDate.getMonth() + 1) * 100 + todayDate.getDate();
+            prngSeed = dateInt + (g.away_id * 1000) + g.home_id;
+
             const [a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen] = await Promise.all([
                 getTeamHitting(g.away_id), getTeamHitting(g.home_id),
                 getPitchingStats(g.away_pitcher_id), getPitchingStats(g.home_pitcher_id),
@@ -746,7 +741,6 @@
             let chartProfit = [];
             let chartColors = [];
 
-            // Skip header (i=1)
             for (let i = 1; i < lines.length; i++) {
                 if(!lines[i].trim()) continue;
                 let parts = lines[i].split(',');
@@ -759,9 +753,8 @@
                     let dailyPLUnits = parseFloat(parts[5].trim());
                     let unitsPlaced = parseFloat(parts[6].trim());
 
-                    if (isNaN(endBank)) continue; // skip blank rows
+                    if (isNaN(endBank)) continue; 
 
-                    // Format Table Row
                     let profitClass = dailyPL >= 0 ? 'positive' : 'negative';
                     let profitSign = dailyPL > 0 ? '+' : '';
 
@@ -776,15 +769,13 @@
                     `;
                     tbody.appendChild(tr);
 
-                    // Push Data for Charts
                     chartDates.push(date);
                     chartBankroll.push(endBank);
                     chartProfit.push(dailyPL);
-                    chartColors.push(dailyPL >= 0 ? '#10b981' : '#ef4444'); // Green if win, Red if loss
+                    chartColors.push(dailyPL >= 0 ? '#10b981' : '#ef4444'); 
                 }
             }
 
-            // After parsing all rows, generate charts
             generateCharts(chartDates, chartBankroll, chartProfit, chartColors);
 
         } catch (e) {
@@ -793,12 +784,10 @@
     }
 
     function generateCharts(dates, bankrolls, profits, colors) {
-        // Shared dark theme config
         Chart.defaults.color = '#8b949e';
         Chart.defaults.font.family = 'Inter, sans-serif';
         const gridOptions = { color: '#2d313b' };
 
-        // 1. Bankroll Growth Line Chart
         const ctxBankroll = document.getElementById('bankrollChart').getContext('2d');
         new Chart(ctxBankroll, {
             type: 'line',
@@ -807,11 +796,11 @@
                 datasets: [{
                     label: 'Ending Bankroll ($)',
                     data: bankrolls,
-                    borderColor: '#22d3ee', // Cyan accent
+                    borderColor: '#22d3ee', 
                     backgroundColor: 'rgba(34, 211, 238, 0.1)',
                     borderWidth: 2,
                     fill: true,
-                    tension: 0.3, // smooth curves
+                    tension: 0.3, 
                     pointRadius: 3,
                     pointBackgroundColor: '#22d3ee'
                 }]
@@ -823,13 +812,10 @@
                     x: { grid: gridOptions },
                     y: { grid: gridOptions }
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
         });
 
-        // 2. Daily Profit/Loss Bar Chart
         const ctxProfit = document.getElementById('profitChart').getContext('2d');
         new Chart(ctxProfit, {
             type: 'bar',
@@ -849,9 +835,7 @@
                     x: { grid: gridOptions },
                     y: { grid: gridOptions }
                 },
-                plugins: {
-                    legend: { display: false }
-                }
+                plugins: { legend: { display: false } }
             }
         });
     }

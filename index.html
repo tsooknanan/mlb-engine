@@ -129,17 +129,16 @@
         .chart-wrapper:last-child { border-bottom: none; }
         .chart-title { font-family: 'Montserrat', sans-serif; margin: 0 0 1rem 0; color: var(--text-main); font-size: 1.1rem; }
         
-        .chart-scroll-box {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            padding-bottom: 10px; /* Space for scrollbar */
-        }
-        
-        .chart-inner {
-            height: 350px;
-            position: relative;
-        }
+        .chart-scroll-box { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 10px; }
+        .chart-inner { height: 350px; position: relative; }
+
+        /* --- PATCH NOTES STYLING --- */
+        .patch-notes-wrapper { padding: 3rem; }
+        .patch-card { border-left: 3px solid var(--accent); padding-left: 1.5rem; margin-bottom: 2.5rem; }
+        .patch-card:last-child { margin-bottom: 0; }
+        .patch-date { color: var(--accent); font-weight: 600; font-size: 0.85rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .patch-title { font-family: 'Montserrat', sans-serif; font-size: 1.25rem; color: var(--text-main); margin: 0 0 0.5rem 0; }
+        .patch-desc { color: var(--text-muted); line-height: 1.6; margin: 0; }
 
         /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
@@ -156,6 +155,7 @@
             .summary-bar { flex-direction: column; align-items: flex-start; }
             .header-top { flex-direction: column; align-items: flex-start; gap: 1rem; }
             .sub-nav { width: 100%; box-sizing: border-box; }
+            .patch-notes-wrapper { padding: 1.5rem; }
             th, td { padding: 1rem; }
         }
     </style>
@@ -172,6 +172,9 @@
         </div>
         <div class="nav-item" onclick="switchTab('history', this)">
             <svg viewBox="0 0 24 24"><path d="M3 3v18h18v-2H5V3H3zm6 14l-4-4 4-4 4 4-4 4zm8 0l-4-4 4-4 4 4-4 4z"/></svg>History
+        </div>
+        <div class="nav-item" onclick="switchTab('patch-notes', this)">
+            <svg viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2h12c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>Updates
         </div>
     </aside>
 
@@ -267,6 +270,17 @@
             </div>
         </section>
 
+        <section id="patch-notes" class="section">
+            <div class="header-top">
+                <div class="header"><h2>Patch Notes</h2></div>
+            </div>
+            <div class="dashboard-container">
+                <div class="patch-notes-wrapper" id="patch-notes-container">
+                    <div class="loading-state">Fetching updates from Google Sheets...</div>
+                </div>
+            </div>
+        </section>
+
     </main>
 
 <script>
@@ -306,6 +320,7 @@
     
     const TODAYS_CARD_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=706384976&single=true&output=csv";
     const HISTORY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=1736165511&single=true&output=csv";
+    const PATCH_NOTES_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=1908203674&single=true&output=csv"; // <--- NEW LINK
 
     // ==========================================
     // DATA FETCHERS
@@ -329,15 +344,16 @@
 
             for (let i = 1; i < lines.length; i++) {
                 if(!lines[i].trim()) continue;
-                let parts = lines[i].split(',');
+                // Regular Expression to properly split CSV lines even if numbers contain commas
+                let parts = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 
                 if (parts.length >= 7) {
-                    let matchup = parts[0].trim();
-                    let winner = parts[1].trim();
-                    let am_odds = parts[2].trim();
-                    let wager = parseFloat(parts[4].trim());
-                    let ret_val = parseFloat(parts[5].trim());
-                    let profit = parseFloat(parts[6].trim());
+                    let matchup = parts[0].replace(/^"|"$/g, '').trim();
+                    let winner = parts[1].replace(/^"|"$/g, '').trim();
+                    let am_odds = parts[2].replace(/^"|"$/g, '').trim();
+                    let wager = parseFloat(parts[4].replace(/^"|"$/g, '').trim());
+                    let ret_val = parseFloat(parts[5].replace(/^"|"$/g, '').trim());
+                    let profit = parseFloat(parts[6].replace(/^"|"$/g, '').trim());
 
                     if (isNaN(wager) || wager === 0) continue; 
 
@@ -394,15 +410,15 @@
 
             for (let i = 1; i < lines.length; i++) {
                 if(!lines[i].trim()) continue;
-                let parts = lines[i].split(',');
+                let parts = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 
                 if (parts.length >= 7) {
-                    let dateStr = parts[0].trim();
-                    let startBank = parseFloat(parts[1].trim());
-                    let endBank = parseFloat(parts[3].trim());
-                    let dailyPL = parseFloat(parts[4].trim());
-                    let dailyPLUnits = parseFloat(parts[5].trim());
-                    let unitsPlaced = parseFloat(parts[6].trim());
+                    let dateStr = parts[0].replace(/^"|"$/g, '').trim();
+                    let startBank = parseFloat(parts[1].replace(/^"|"$/g, '').trim());
+                    let endBank = parseFloat(parts[3].replace(/^"|"$/g, '').trim());
+                    let dailyPL = parseFloat(parts[4].replace(/^"|"$/g, '').trim());
+                    let dailyPLUnits = parseFloat(parts[5].replace(/^"|"$/g, '').trim());
+                    let unitsPlaced = parseFloat(parts[6].replace(/^"|"$/g, '').trim());
 
                     if (isNaN(endBank)) continue; 
 
@@ -439,27 +455,64 @@
         } catch (e) { console.error("Could not fetch History Sheet:", e); }
     }
 
+    async function loadPatchNotes() {
+        if(PATCH_NOTES_CSV_URL === "PASTE_PATCH_NOTES_CSV_LINK_HERE") {
+            document.getElementById('patch-notes-container').innerHTML = "<div class='loading-state'>Please paste your Patch Notes CSV link into the code.</div>";
+            return;
+        }
+        try {
+            const response = await fetch(PATCH_NOTES_CSV_URL);
+            const csvText = await response.text();
+            const lines = csvText.split('\n');
+            
+            const container = document.getElementById('patch-notes-container');
+            container.innerHTML = ''; 
+            let hasUpdates = false;
+
+            // Iterate backwards to show the newest updates at the top!
+            for (let i = lines.length - 1; i >= 1; i--) {
+                if(!lines[i].trim()) continue;
+                // Safely handle commas inside descriptions
+                let parts = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                
+                if (parts.length >= 3) {
+                    hasUpdates = true;
+                    let dateStr = parts[0].replace(/^"|"$/g, '').trim();
+                    let version = parts[1].replace(/^"|"$/g, '').trim();
+                    let desc = parts[2].replace(/^"|"$/g, '').trim();
+
+                    container.innerHTML += `
+                        <div class="patch-card">
+                            <div class="patch-date">${dateStr}</div>
+                            <h3 class="patch-title">Version ${version}</h3>
+                            <p class="patch-desc">${desc}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            if(!hasUpdates) {
+                container.innerHTML = "<div class='loading-state'>No patch notes found in sheet.</div>";
+            }
+        } catch (e) {
+            console.error("Could not fetch Patch Notes:", e);
+            document.getElementById('patch-notes-container').innerHTML = "<div class='loading-state'>Could not load updates. Check CSV link.</div>";
+        }
+    }
+
     function generateCharts(dates, bankrolls, profits, colors) {
         Chart.defaults.color = '#8b949e'; 
         Chart.defaults.font.family = 'Inter, sans-serif';
         const gridOptions = { color: '#2d313b' };
         
-        // 1. Calculate dynamic width so data is never squished
-        // Gives each date at least 35 pixels of breathing room
         const containerWidth = document.querySelector('.chart-wrapper').clientWidth;
         const requiredWidth = dates.length * 35; 
         const finalWidth = Math.max(containerWidth, requiredWidth);
 
-        // Apply width to the inner canvas wrappers to force a scrollbar if needed
         document.getElementById('bankroll-inner').style.width = finalWidth + 'px';
         document.getElementById('profit-inner').style.width = finalWidth + 'px';
 
-        // 2. Allow ALL dates to show since we have infinite scrolling space now
-        const xTickOptions = {
-            maxRotation: 45,
-            minRotation: 45,
-            autoSkip: false
-        };
+        const xTickOptions = { maxRotation: 45, minRotation: 45, autoSkip: false };
 
         new Chart(document.getElementById('bankrollChart').getContext('2d'), {
             type: 'line',
@@ -477,6 +530,7 @@
     window.onload = () => {
         loadTodaysCard();
         loadHistory();
+        loadPatchNotes(); // Load new tab data
     };
 </script>
 </body>

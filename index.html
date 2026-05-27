@@ -124,9 +124,22 @@
         .sub-nav-btn:hover { color: var(--text-main); }
         .sub-nav-btn.active { background: var(--accent); color: #000; }
 
-        .chart-wrapper { padding: 1.5rem; border-bottom: 1px solid var(--border); height: 350px; position: relative; }
+        /* --- SCROLLABLE CHART CONTAINERS --- */
+        .chart-wrapper { padding: 1.5rem; border-bottom: 1px solid var(--border); }
         .chart-wrapper:last-child { border-bottom: none; }
         .chart-title { font-family: 'Montserrat', sans-serif; margin: 0 0 1rem 0; color: var(--text-main); font-size: 1.1rem; }
+        
+        .chart-scroll-box {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: 10px; /* Space for scrollbar */
+        }
+        
+        .chart-inner {
+            height: 350px;
+            position: relative;
+        }
 
         /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
@@ -237,11 +250,19 @@
             <div id="view-charts" class="dashboard-container hidden">
                 <div class="chart-wrapper">
                     <h3 class="chart-title">Bankroll Growth Over Time</h3>
-                    <canvas id="bankrollChart"></canvas>
+                    <div class="chart-scroll-box">
+                        <div class="chart-inner" id="bankroll-inner">
+                            <canvas id="bankrollChart"></canvas>
+                        </div>
+                    </div>
                 </div>
                 <div class="chart-wrapper">
                     <h3 class="chart-title">Daily Profit / Loss (Units)</h3>
-                    <canvas id="profitChart"></canvas>
+                    <div class="chart-scroll-box">
+                        <div class="chart-inner" id="profit-inner">
+                            <canvas id="profitChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -290,7 +311,6 @@
     // DATA FETCHERS
     // ==========================================
 
-    // Fetch and display Today's Card
     async function loadTodaysCard() {
         if(TODAYS_CARD_CSV_URL === "PASTE_TODAYS_CARD_CSV_LINK_HERE") {
             document.getElementById('loading').innerHTML = "Please paste your Today's Card CSV link into the code.";
@@ -360,7 +380,6 @@
         }
     }
 
-    // Fetch and display History Tracker
     async function loadHistory() {
         if(HISTORY_CSV_URL === "PASTE_BANKROLL_TRACKER_LINK_HERE") return; 
         try {
@@ -390,7 +409,6 @@
                     let profitClass = dailyPL >= 0 ? 'positive' : 'negative';
                     let profitSign = dailyPL > 0 ? '+' : '';
 
-                    // 1. Table Data (Keeps full date format)
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
                         <td>${dateStr}</td>
@@ -402,10 +420,9 @@
                     `;
                     tbody.appendChild(tr);
 
-                    // 2. Format Dates for Charts (e.g. "2026-05-14" becomes "May 14")
                     let shortDate = dateStr;
                     try {
-                        let d = new Date(dateStr + 'T00:00:00'); // T00:00:00 prevents timezone bugs
+                        let d = new Date(dateStr + 'T00:00:00'); 
                         if (!isNaN(d)) {
                             shortDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                         }
@@ -413,8 +430,6 @@
 
                     chartDates.push(shortDate);
                     chartBankroll.push(endBank);
-                    
-                    // 3. Push UNITS instead of DOLLARS for the bar chart
                     chartProfit.push(dailyPLUnits); 
                     chartColors.push(dailyPLUnits >= 0 ? '#10b981' : '#ef4444'); 
                 }
@@ -429,12 +444,21 @@
         Chart.defaults.font.family = 'Inter, sans-serif';
         const gridOptions = { color: '#2d313b' };
         
-        // 4. Force X-Axis to angle labels and limit overlapping
+        // 1. Calculate dynamic width so data is never squished
+        // Gives each date at least 35 pixels of breathing room
+        const containerWidth = document.querySelector('.chart-wrapper').clientWidth;
+        const requiredWidth = dates.length * 35; 
+        const finalWidth = Math.max(containerWidth, requiredWidth);
+
+        // Apply width to the inner canvas wrappers to force a scrollbar if needed
+        document.getElementById('bankroll-inner').style.width = finalWidth + 'px';
+        document.getElementById('profit-inner').style.width = finalWidth + 'px';
+
+        // 2. Allow ALL dates to show since we have infinite scrolling space now
         const xTickOptions = {
             maxRotation: 45,
             minRotation: 45,
-            autoSkip: true,
-            maxTicksLimit: 12 // Prevents it from getting too crowded on mobile
+            autoSkip: false
         };
 
         new Chart(document.getElementById('bankrollChart').getContext('2d'), {

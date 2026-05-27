@@ -35,7 +35,7 @@
             -webkit-font-smoothing: antialiased; 
         }
 
-        /* --- SIDEBAR --- */
+        /* --- SIDEBAR (DESKTOP) --- */
         .sidebar {
             width: var(--sidebar-width);
             background-color: var(--sidebar-bg);
@@ -45,7 +45,7 @@
             align-items: center;
             padding-top: 1.5rem;
             flex-shrink: 0;
-            z-index: 10;
+            z-index: 50;
         }
 
         .logo-box {
@@ -79,6 +79,7 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             border-left: 3px solid transparent;
+            box-sizing: border-box;
         }
 
         .nav-item svg {
@@ -99,6 +100,7 @@
             flex-grow: 1;
             position: relative;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .section {
@@ -119,7 +121,7 @@
         }
 
         /* --- HOME SECTION --- */
-        .hero { margin-top: 10vh; }
+        .hero { margin-top: 5vh; }
         .hero h1 {
             font-family: 'Montserrat', sans-serif;
             font-size: 5rem;
@@ -131,7 +133,7 @@
             -webkit-text-fill-color: transparent;
         }
         .hero p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             color: var(--text-muted);
             max-width: 600px;
             line-height: 1.6;
@@ -151,6 +153,7 @@
             transition: background 0.2s;
             text-transform: uppercase;
             letter-spacing: 1px;
+            width: fit-content;
         }
         .btn:hover { background-color: var(--accent-hover); }
 
@@ -194,7 +197,7 @@
             background: var(--card-bg);
             border-radius: 12px;
             border: 1px solid var(--border);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4); 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
             overflow: hidden;
             margin-bottom: 2rem;
         }
@@ -206,10 +209,19 @@
             font-weight: 500;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
         }
 
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th, td { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); }
+        /* Responsive Table Wrapper */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
+        th, td { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
         th { 
             background: var(--sidebar-bg); 
             font-weight: 600; 
@@ -226,46 +238,117 @@
         /* --- SUB TABS (HISTORY) --- */
         .sub-nav {
             display: flex;
-            gap: 1rem;
+            gap: 0.5rem;
             background: var(--card-bg);
             padding: 0.5rem;
             border-radius: 8px;
             border: 1px solid var(--border);
+            flex-wrap: wrap;
         }
         .sub-nav-btn {
-            padding: 0.5rem 1.5rem;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: var(--text-muted);
             transition: all 0.2s;
+            flex: 1;
+            text-align: center;
+            white-space: nowrap;
         }
-        .sub-nav-btn:hover {
-            color: var(--text-main);
-        }
-        .sub-nav-btn.active {
-            background: var(--accent);
-            color: #000;
-        }
+        .sub-nav-btn:hover { color: var(--text-main); }
+        .sub-nav-btn.active { background: var(--accent); color: #000; }
 
         /* --- CHART CONTAINERS --- */
         .chart-wrapper {
-            padding: 2rem;
+            padding: 1.5rem;
             border-bottom: 1px solid var(--border);
-            height: 350px; /* Force height so charts don't grow infinitely */
+            height: 350px; 
             position: relative;
         }
-        .chart-wrapper:last-child {
-            border-bottom: none;
-        }
+        .chart-wrapper:last-child { border-bottom: none; }
         .chart-title {
             font-family: 'Montserrat', sans-serif;
             margin: 0 0 1rem 0;
             color: var(--text-main);
-            font-size: 1.2rem;
+            font-size: 1.1rem;
         }
 
+        /* ==========================================
+           📱 MOBILE RESPONSIVE MEDIA QUERIES 📱
+           ========================================== */
+        @media (max-width: 768px) {
+            /* Flip layout to put sidebar on bottom */
+            body {
+                flex-direction: column-reverse; 
+            }
+            
+            /* Convert Sidebar to Bottom App Navigation */
+            .sidebar {
+                width: 100%;
+                height: 70px;
+                flex-direction: row;
+                justify-content: space-around;
+                border-right: none;
+                border-top: 1px solid var(--border);
+                padding-top: 0;
+                background-color: var(--sidebar-bg); /* Ensure it stays solid */
+            }
+            
+            .logo-box {
+                display: none; /* Hide logo to save space on mobile */
+            }
+            
+            .nav-item {
+                padding: 0.5rem 0;
+                border-left: none;
+                border-top: 3px solid transparent; /* Move active indicator to top */
+                justify-content: center;
+                font-size: 0.65rem;
+            }
+
+            .nav-item:hover, .nav-item.active {
+                border-left: none;
+                border-top: 3px solid var(--accent);
+            }
+
+            .nav-item svg {
+                width: 22px;
+                height: 22px;
+                margin-bottom: 4px;
+            }
+
+            /* Adjust Content Area */
+            .section {
+                padding: 2rem 1rem;
+            }
+
+            /* Scale down Typography */
+            .hero h1 { font-size: 3rem; letter-spacing: -1px; }
+            .hero p { font-size: 1rem; }
+            .header h2 { font-size: 1.5rem; }
+
+            /* Make Summary Bars Stack vertically */
+            .summary-bar {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            /* Header Tops (Title + Buttons) */
+            .header-top {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .sub-nav {
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            th, td { padding: 1rem; } /* Tighter tables */
+        }
     </style>
 </head>
 <body>
@@ -317,19 +400,21 @@
 
             <div class="dashboard-container hidden" id="dashboard">
                 <div class="summary-bar" id="summary-bar"></div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Matchup</th>
-                            <th>Model Pick</th>
-                            <th>Win Prob</th>
-                            <th>Vegas Line</th>
-                            <th>Wager (Units)</th>
-                            <th>Proj. Return</th>
-                        </tr>
-                    </thead>
-                    <tbody id="results-body"></tbody>
-                </table>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Matchup</th>
+                                <th>Model Pick</th>
+                                <th>Win Prob</th>
+                                <th>Vegas Line</th>
+                                <th>Wager (Units)</th>
+                                <th>Proj. Return</th>
+                            </tr>
+                        </thead>
+                        <tbody id="results-body"></tbody>
+                    </table>
+                </div>
             </div>
         </section>
 
@@ -343,20 +428,22 @@
             </div>
 
             <div id="view-data" class="dashboard-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Date</th>
-                            <th>Starting Bankroll</th>
-                            <th>Ending Bankroll</th>
-                            <th>Units Placed</th>
-                            <th>Daily P/L ($)</th>
-                            <th>Daily P/L (Units)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Starting Bankroll</th>
+                                <th>Ending Bankroll</th>
+                                <th>Units Placed</th>
+                                <th>Daily P/L ($)</th>
+                                <th>Daily P/L (Units)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="history-body">
                         </tbody>
-                </table>
+                    </table>
+                </div>
             </div>
 
             <div id="view-charts" class="dashboard-container hidden">
@@ -419,7 +506,7 @@
     // ==========================================
     const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv";
     
-    // 🛑 PASTE YOUR NEW BANKROLL TRACKER CSV LINK HERE 🛑
+    // YOUR BANKROLL TRACKER CSV LINK
     const HISTORY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=1736165511&single=true&output=csv";
     
     const KELLY_MULTIPLIER = 0.05;

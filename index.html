@@ -82,231 +82,59 @@
             box-sizing: border-box;
         }
 
-        .nav-item svg {
-            width: 24px;
-            height: 24px;
-            margin-bottom: 8px;
-            fill: currentColor;
-        }
-
-        .nav-item:hover, .nav-item.active {
-            color: var(--accent);
-            background-color: rgba(34, 211, 238, 0.05);
-            border-left: 3px solid var(--accent);
-        }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 8px; fill: currentColor; }
+        .nav-item:hover, .nav-item.active { color: var(--accent); background-color: rgba(34, 211, 238, 0.05); border-left: 3px solid var(--accent); }
 
         /* --- MAIN CONTENT AREA --- */
-        .content-area {
-            flex-grow: 1;
-            position: relative;
-            overflow-y: auto;
-            overflow-x: hidden;
-        }
-
-        .section {
-            display: none;
-            padding: 4rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            animation: fadeIn 0.4s ease-out;
-        }
-
-        .section.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        .content-area { flex-grow: 1; position: relative; overflow-y: auto; overflow-x: hidden; }
+        .section { display: none; padding: 4rem; max-width: 1200px; margin: 0 auto; animation: fadeIn 0.4s ease-out; }
+        .section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         /* --- HOME SECTION --- */
         .hero { margin-top: 5vh; }
-        .hero h1 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 5rem;
-            font-weight: 900;
-            margin: 0;
-            letter-spacing: -2px;
-            background: linear-gradient(135deg, #fff 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .hero p {
-            font-size: 1.1rem;
-            color: var(--text-muted);
-            max-width: 600px;
-            line-height: 1.6;
-            margin-top: 1rem;
-            margin-bottom: 2.5rem;
-        }
-        .btn {
-            background-color: var(--accent);
-            color: #000;
-            border: none;
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            width: fit-content;
-        }
+        .hero h1 { font-family: 'Montserrat', sans-serif; font-size: 5rem; font-weight: 900; margin: 0; letter-spacing: -2px; background: linear-gradient(135deg, #fff 0%, var(--accent) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero p { font-size: 1.1rem; color: var(--text-muted); max-width: 600px; line-height: 1.6; margin-top: 1rem; margin-bottom: 2.5rem; }
+        .btn { background-color: var(--accent); color: #000; border: none; padding: 1rem 2rem; font-size: 1rem; font-weight: 600; font-family: 'Inter', sans-serif; border-radius: 8px; cursor: pointer; transition: background 0.2s; text-transform: uppercase; letter-spacing: 1px; width: fit-content; }
         .btn:hover { background-color: var(--accent-hover); }
 
-        .about-model {
-            display: none;
-            margin-top: 3rem;
-            background: var(--card-bg);
-            padding: 2rem;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            max-width: 800px;
-            line-height: 1.7;
-            color: var(--text-main);
-        }
+        .about-model { display: none; margin-top: 3rem; background: var(--card-bg); padding: 2rem; border-radius: 12px; border: 1px solid var(--border); max-width: 800px; line-height: 1.7; color: var(--text-main); }
 
         /* --- DASHBOARD & TABLES --- */
-        .header h2 { 
-            font-family: 'Montserrat', sans-serif;
-            margin: 0; 
-            font-size: 2rem; 
-            color: var(--text-main); 
-        }
+        .header h2 { font-family: 'Montserrat', sans-serif; margin: 0; font-size: 2rem; color: var(--text-main); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        
+        .loading-state { text-align: center; padding: 5rem 2rem; background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); color: var(--text-muted); }
 
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-        }
+        .dashboard-container { background: var(--card-bg); border-radius: 12px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); overflow: hidden; margin-bottom: 2rem; }
+        .summary-bar { background: var(--sidebar-bg); padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); font-weight: 500; display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
 
-        .loading-state {
-            text-align: center;
-            padding: 5rem 2rem;
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            color: var(--text-muted);
-        }
-
-        .dashboard-container {
-            background: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .summary-bar {
-            background: var(--sidebar-bg);
-            padding: 1.5rem 2rem;
-            border-bottom: 1px solid var(--border);
-            font-weight: 500;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        /* Responsive Table Wrapper */
-        .table-responsive {
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
-
+        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; text-align: left; min-width: 600px; }
         th, td { padding: 1.2rem 2rem; border-bottom: 1px solid var(--border); white-space: nowrap; }
-        th { 
-            background: var(--sidebar-bg); 
-            font-weight: 600; 
-            color: var(--text-muted); 
-            text-transform: uppercase; 
-            font-size: 0.75rem; 
-            letter-spacing: 1.5px; 
-        }
+        th { background: var(--sidebar-bg); font-weight: 600; color: var(--text-muted); text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1.5px; }
         tr:last-child td { border-bottom: none; }
         .positive { color: var(--green); font-weight: 600; }
         .negative { color: var(--red); font-weight: 600; }
         .hidden { display: none !important; }
 
         /* --- SUB TABS (HISTORY) --- */
-        .sub-nav {
-            display: flex;
-            gap: 0.5rem;
-            background: var(--card-bg);
-            padding: 0.5rem;
-            border-radius: 8px;
-            border: 1px solid var(--border);
-            flex-wrap: wrap;
-        }
-        .sub-nav-btn {
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            transition: all 0.2s;
-            flex: 1;
-            text-align: center;
-            white-space: nowrap;
-        }
+        .sub-nav { display: flex; gap: 0.5rem; background: var(--card-bg); padding: 0.5rem; border-radius: 8px; border: 1px solid var(--border); flex-wrap: wrap; }
+        .sub-nav-btn { padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); transition: all 0.2s; flex: 1; text-align: center; white-space: nowrap; }
         .sub-nav-btn:hover { color: var(--text-main); }
         .sub-nav-btn.active { background: var(--accent); color: #000; }
 
-        /* --- CHART CONTAINERS --- */
-        .chart-wrapper {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            height: 350px; 
-            position: relative;
-        }
+        .chart-wrapper { padding: 1.5rem; border-bottom: 1px solid var(--border); height: 350px; position: relative; }
         .chart-wrapper:last-child { border-bottom: none; }
-        .chart-title {
-            font-family: 'Montserrat', sans-serif;
-            margin: 0 0 1rem 0;
-            color: var(--text-main);
-            font-size: 1.1rem;
-        }
+        .chart-title { font-family: 'Montserrat', sans-serif; margin: 0 0 1rem 0; color: var(--text-main); font-size: 1.1rem; }
 
-        /* ==========================================
-           📱 MOBILE RESPONSIVE MEDIA QUERIES 📱
-           ========================================== */
+        /* --- MOBILE RESPONSIVE --- */
         @media (max-width: 768px) {
             body { flex-direction: column-reverse; }
-            
-            .sidebar {
-                width: 100%;
-                height: 70px;
-                flex-direction: row;
-                justify-content: space-around;
-                border-right: none;
-                border-top: 1px solid var(--border);
-                padding-top: 0;
-                background-color: var(--sidebar-bg); 
-            }
-            
+            .sidebar { width: 100%; height: 70px; flex-direction: row; justify-content: space-around; border-right: none; border-top: 1px solid var(--border); padding-top: 0; background-color: var(--sidebar-bg); }
             .logo-box { display: none; }
-            
-            .nav-item {
-                padding: 0.5rem 0;
-                border-left: none;
-                border-top: 3px solid transparent; 
-                justify-content: center;
-                font-size: 0.65rem;
-            }
-
-            .nav-item:hover, .nav-item.active {
-                border-left: none;
-                border-top: 3px solid var(--accent);
-            }
-
+            .nav-item { padding: 0.5rem 0; border-left: none; border-top: 3px solid transparent; justify-content: center; font-size: 0.65rem; }
+            .nav-item:hover, .nav-item.active { border-left: none; border-top: 3px solid var(--accent); }
             .nav-item svg { width: 22px; height: 22px; margin-bottom: 4px; }
             .section { padding: 2rem 1rem; }
             .hero h1 { font-size: 3rem; letter-spacing: -1px; }
@@ -323,20 +151,14 @@
 
     <aside class="sidebar">
         <div class="logo-box">SP</div>
-        
         <div class="nav-item active" onclick="switchTab('home', this)">
-            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-            Home
+            <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>Home
         </div>
-        
         <div class="nav-item" onclick="switchTab('wagers', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-            Wagers
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>Wagers
         </div>
-        
         <div class="nav-item" onclick="switchTab('history', this)">
-            <svg viewBox="0 0 24 24"><path d="M3 3v18h18v-2H5V3H3zm6 14l-4-4 4-4 4 4-4 4zm8 0l-4-4 4-4 4 4-4 4z"/></svg>
-            History
+            <svg viewBox="0 0 24 24"><path d="M3 3v18h18v-2H5V3H3zm6 14l-4-4 4-4 4 4-4 4zm8 0l-4-4 4-4 4 4-4 4z"/></svg>History
         </div>
     </aside>
 
@@ -348,12 +170,11 @@
                 <p>An advanced MLB Sabermetric Engine utilizing real-time API integrations, 10,000-iteration Monte Carlo simulations, and Kelly Criterion bankroll management to identify mathematical edges against Vegas lines.</p>
                 <button class="btn" onclick="toggleAbout()">Learn More</button>
             </div>
-
             <div class="about-model" id="about-model">
                 <h3>How The Engine Works</h3>
                 <p><strong>1. Data Ingestion:</strong> The engine pulls live daily schedules, park factors, and real-time statistics (OPS, WHIP, K/9) directly from the MLB Stats API.</p>
                 <p><strong>2. Monte Carlo Simulation:</strong> For every scheduled game, the model simulates the outcome 10,000 times using a Gaussian distribution based on expected run environments and team metrics.</p>
-                <p><strong>3. Kelly Value Generation:</strong> The derived win probabilities are compared against live Vegas lines (imported via Google Sheets). If a mathematical edge exists, the model outputs a strict fractional Kelly wager recommendation to optimize bankroll growth while minimizing risk.</p>
+                <p><strong>3. Kelly Value Generation:</strong> The derived win probabilities are compared against live Vegas lines. If a mathematical edge exists, the model outputs a strict fractional Kelly wager recommendation to optimize bankroll growth while minimizing risk.</p>
             </div>
         </section>
 
@@ -363,7 +184,7 @@
             </div>
             
             <div id="loading" class="loading-state">
-                Synchronizing Data & Running 10,000 Monte Carlo Simulations...
+                Fetching today's card from the Python Engine...
             </div>
 
             <div class="dashboard-container hidden" id="dashboard">
@@ -374,10 +195,10 @@
                             <tr>
                                 <th>Matchup</th>
                                 <th>Model Pick</th>
-                                <th>Win Prob</th>
                                 <th>Vegas Line</th>
                                 <th>Wager (Units)</th>
                                 <th>Proj. Return</th>
+                                <th>Proj. Profit</th>
                             </tr>
                         </thead>
                         <tbody id="results-body"></tbody>
@@ -408,8 +229,7 @@
                                 <th>Daily P/L (Units)</th>
                             </tr>
                         </thead>
-                        <tbody id="history-body">
-                        </tbody>
+                        <tbody id="history-body"></tbody>
                     </table>
                 </div>
             </div>
@@ -424,14 +244,13 @@
                     <canvas id="profitChart"></canvas>
                 </div>
             </div>
-
         </section>
 
     </main>
 
 <script>
     // ==========================================
-    // UI NAVIGATION LOGIC
+    // UI NAVIGATION
     // ==========================================
     function switchTab(tabId, element) {
         document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
@@ -442,12 +261,7 @@
 
     function toggleAbout() {
         const aboutDiv = document.getElementById('about-model');
-        if (aboutDiv.style.display === 'block') {
-            aboutDiv.style.display = 'none';
-        } else {
-            aboutDiv.style.display = 'block';
-            aboutDiv.scrollIntoView({ behavior: 'smooth' });
-        }
+        aboutDiv.style.display = aboutDiv.style.display === 'block' ? 'none' : 'block';
     }
 
     function switchHistoryTab(view) {
@@ -457,275 +271,101 @@
         const btnCharts = document.getElementById('btn-tab-charts');
 
         if (view === 'data') {
-            dataView.classList.remove('hidden');
-            chartView.classList.add('hidden');
-            btnData.classList.add('active');
-            btnCharts.classList.remove('active');
+            dataView.classList.remove('hidden'); chartView.classList.add('hidden');
+            btnData.classList.add('active'); btnCharts.classList.remove('active');
         } else {
-            dataView.classList.add('hidden');
-            chartView.classList.remove('hidden');
-            btnData.classList.remove('active');
-            btnCharts.classList.add('active');
+            dataView.classList.add('hidden'); chartView.classList.remove('hidden');
+            btnData.classList.remove('active'); btnCharts.classList.add('active');
         }
     }
 
     // ==========================================
-    // DATA LINKS
+    // DATA LINKS (UPDATE THESE)
     // ==========================================
-    const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQdoSh23OcrlgtA2xN-6cMmg6VHSHVn-VFL14SmQzaceuM6JES6m0oBLjdpoRcaanpdiN8z8KW4BWwz/pub?output=csv";
     
+    // 1. Link to your NEW "Today's Card" CSV Tab
+    const TODAYS_CARD_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=706384976&single=true&output=csv";
+    
+    // 2. Link to your existing "Bankroll Tracker" CSV Tab
     const HISTORY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=1736165511&single=true&output=csv";
-    
-    const KELLY_MULTIPLIER = 0.05;
-
-    const TEAM_MAP = {
-        'Arizona Diamondbacks': 'ARI', 'Atlanta Braves': 'ATL', 'Baltimore Orioles': 'BAL',
-        'Boston Red Sox': 'BOS', 'Chicago Cubs': 'CHC', 'Chicago White Sox': 'CHW',
-        'Cincinnati Reds': 'CIN', 'Cleveland Guardians': 'CLE', 'Colorado Rockies': 'COL',
-        'Detroit Tigers': 'DET', 'Houston Astros': 'HOU', 'Kansas City Royals': 'KCR',
-        'Los Angeles Angels': 'LAA', 'Los Angeles Dodgers': 'LAD', 'Miami Marlins': 'MIA',
-        'Milwaukee Brewers': 'MIL', 'Minnesota Twins': 'MIN', 'New York Mets': 'NYM',
-        'New York Yankees': 'NYY', 'Oakland Athletics': 'OAK', 'Philadelphia Phillies': 'PHI',
-        'Pittsburgh Pirates': 'PIT', 'San Diego Padres': 'SDP', 'San Francisco Giants': 'SFG',
-        'Seattle Mariners': 'SEA', 'St. Louis Cardinals': 'STL', 'Tampa Bay Rays': 'TBR',
-        'Texas Rangers': 'TEX', 'Toronto Blue Jays': 'TOR', 'Washington Nationals': 'WSN'
-    };
-
-    const PARK_FACTORS = {
-        'Colorado Rockies': 1.14, 'Cincinnati Reds': 1.12, 'Boston Red Sox': 1.08,
-        'Texas Rangers': 1.05, 'Atlanta Braves': 1.03, 'Kansas City Royals': 1.03,
-        'Philadelphia Phillies': 1.02, 'Los Angeles Dodgers': 1.01, 'New York Yankees': 1.01, 
-        'Chicago White Sox': 1.01, 'Arizona Diamondbacks': 1.00, 'Houston Astros': 1.00, 
-        'Toronto Blue Jays': 1.00, 'Washington Nationals': 0.99, 'Chicago Cubs': 0.99, 
-        'Milwaukee Brewers': 0.99, 'Minnesota Twins': 0.99, 'Baltimore Orioles': 0.98,
-        'Pittsburgh Pirates': 0.98, 'Los Angeles Angels': 0.98, 'Miami Marlins': 0.97,
-        'St. Louis Cardinals': 0.97, 'Tampa Bay Rays': 0.97, 'San Francisco Giants': 0.96,
-        'Detroit Tigers': 0.96, 'Oakland Athletics': 0.95, 'New York Mets': 0.95,
-        'Cleveland Guardians': 0.94, 'San Diego Padres': 0.92, 'Seattle Mariners': 0.91
-    };
-
-    let globalResults = [];
 
     // ==========================================
-    // --- MATH ENGINE (UPDATED WITH SEEDED PRNG) ---
+    // DATA FETCHERS
     // ==========================================
-    
-    // Seed variable for deterministic pseudo-random number generation
-    let prngSeed = 1;
 
-    // Mulberry32 PRNG (Ensures the exact same 10k simulations play out on every refresh)
-    function seededRandom() {
-        let t = prngSeed += 0x6D2B79F5;
-        t = Math.imul(t ^ (t >>> 15), t | 1);
-        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    }
-
-    function randomGauss(mean, stdev) {
-        // Now using our seeded random instead of standard Math.random()
-        let u = 1 - seededRandom(); 
-        let v = seededRandom();
-        let z = Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-        return z * stdev + mean;
-    }
-
-    function calculateKelly(p_win, odds, multiplier) {
-        let p = p_win / 100.0;
-        let b = odds > 0 ? (odds / 100.0) : (100.0 / Math.abs(odds));
-        let edge = (p * b) - (1 - p);
-        if (edge <= 0) return 0.0;
-        return Math.min(parseFloat(((edge / b) * multiplier * 100).toFixed(2)), 2.5);
-    }
-
-    function getDecimalOdds(american_odds) {
-        if (american_odds > 0) return parseFloat(((american_odds / 100.0) + 1).toFixed(2));
-        return parseFloat(((100.0 / Math.abs(american_odds)) + 1).toFixed(2));
-    }
-
-    // --- API FETCHERS ---
-    async function fetchJson(url) {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('API Error');
-        return await response.json();
-    }
-
-    async function getSheetOdds() {
-        if(SHEET_CSV_URL === "PASTE_YOUR_LINK_HERE") return {};
-        try {
-            const response = await fetch(SHEET_CSV_URL);
-            const csvText = await response.text();
-            const lines = csvText.split('\n');
-            let oddsMap = {};
-            for (let i = 1; i < lines.length; i++) {
-                if(!lines[i].trim()) continue;
-                let parts = lines[i].split(',');
-                if (parts.length >= 2) {
-                    let team = parts[0].trim().toUpperCase();
-                    let odds = parseInt(parts[1].trim());
-                    oddsMap[team] = isNaN(odds) ? 0 : odds;
-                }
-            }
-            return oddsMap;
-        } catch (e) { return {}; }
-    }
-
-    async function getTodaysSchedule() {
-        const today = new Date().toISOString().split('T')[0]; 
-        const url = `https://statsapi.mlb.com/api/v1/schedule?sportId=1&date=${today}&hydrate=probablePitcher`;
-        try {
-            const data = await fetchJson(url);
-            if (!data.dates || data.dates.length === 0) return [];
-            return data.dates[0].games.map(game => ({
-                away_name: game.teams.away.team.name, away_id: game.teams.away.team.id,
-                away_pitcher_id: game.teams.away.probablePitcher ? game.teams.away.probablePitcher.id : null,
-                home_name: game.teams.home.team.name, home_id: game.teams.home.team.id,
-                home_pitcher_id: game.teams.home.probablePitcher ? game.teams.home.probablePitcher.id : null,
-            }));
-        } catch (e) { return []; }
-    }
-
-    async function getTeamHitting(teamId) {
-        const year = new Date().getFullYear();
-        const url = `https://statsapi.mlb.com/api/v1/teams/${teamId}/stats?group=hitting&stats=season&season=${year}`;
-        try { return parseFloat((await fetchJson(url)).stats[0].splits[0].stat.ops); } 
-        catch (e) { return 0.720; }
-    }
-
-    async function getPitchingStats(pitcherId, isBullpen = false) {
-        if (!pitcherId && !isBullpen) return { whip: 1.30, k9: 8.5 };
-        const year = new Date().getFullYear();
-        const endpoint = isBullpen ? `teams/${pitcherId}` : `people/${pitcherId}`;
-        const url = `https://statsapi.mlb.com/api/v1/${endpoint}/stats?stats=season&group=pitching&season=${year}`;
-        try {
-            const stats = (await fetchJson(url)).stats[0].splits[0].stat;
-            return { whip: parseFloat(stats.whip || 1.30), k9: parseFloat(stats.strikeoutsPer9Inn || 8.5) };
-        } catch (e) { return { whip: 1.30, k9: 8.5 }; }
-    }
-
-    function simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, home_team_name) {
-        const factor = PARK_FACTORS[home_team_name] || 1.00;
-        const getPFactor = (p) => (p.whip / 1.30 * 0.7) + (8.5 / Math.max(p.k9, 1.0) * 0.3);
-        const a_pitching = (getPFactor(a_starter) * 0.6) + (getPFactor(a_bullpen) * 0.4);
-        const b_pitching = (getPFactor(b_starter) * 0.6) + (getPFactor(b_bullpen) * 0.4);
-        const a_exp = (4.5 * factor) * (a_off / 0.720) * b_pitching;
-        const b_exp = (4.5 * factor) * (b_off / 0.720) * a_pitching;
-        
-        let a_s = Math.max(0, Math.round(randomGauss(a_exp, 3.2)));
-        let b_s = Math.max(0, Math.round(randomGauss(b_exp, 3.2)));
-        
-        // Use seededRandom() for tie-breakers too
-        while (a_s === b_s) { 
-            a_s += seededRandom() > 0.5 ? 1 : 0; 
-            b_s += seededRandom() > 0.5 ? 1 : 0; 
-        }
-        return a_s > b_s ? 'A' : 'B';
-    }
-
-    // --- MAIN AUTO-RUNNER (WAGERS) ---
-    async function runEngine() {
-        const games = await getTodaysSchedule();
-        if (games.length === 0) {
-            document.getElementById('loading').innerText = "No games scheduled for today.";
+    // Fetch and display Today's Card
+    async function loadTodaysCard() {
+        if(TODAYS_CARD_CSV_URL === "PASTE_TODAYS_CARD_CSV_LINK_HERE") {
+            document.getElementById('loading').innerHTML = "Please paste your Today's Card CSV link into the code.";
             return;
         }
 
-        const oddsData = await getSheetOdds();
-        globalResults = [];
-
-        for (let g of games) {
+        try {
+            const response = await fetch(TODAYS_CARD_CSV_URL);
+            const csvText = await response.text();
+            const lines = csvText.split('\n');
             
-            // 🔥 UNIQUE SEED GENERATION 🔥
-            // This mathematically binds the randomization sequence to today's date + the teams playing.
-            const todayDate = new Date();
-            const dateInt = todayDate.getFullYear() * 10000 + (todayDate.getMonth() + 1) * 100 + todayDate.getDate();
-            prngSeed = dateInt + (g.away_id * 1000) + g.home_id;
+            const tbody = document.getElementById('results-body');
+            tbody.innerHTML = ''; 
 
-            const [a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen] = await Promise.all([
-                getTeamHitting(g.away_id), getTeamHitting(g.home_id),
-                getPitchingStats(g.away_pitcher_id), getPitchingStats(g.home_pitcher_id),
-                getPitchingStats(g.away_id, true), getPitchingStats(g.home_id, true)
-            ]);
+            let totalWager = 0, totalReturn = 0, totalProfit = 0, activeGames = 0;
 
-            let a_wins = 0;
-            for (let i = 0; i < 10000; i++) {
-                if (simulateGame(a_off, b_off, a_starter, b_starter, a_bullpen, b_bullpen, g.home_name) === 'A') a_wins++;
+            // Assumes Python export order: Matchup, Winner, American Odds, Decimal Odds, Wager, Return, Profit
+            for (let i = 1; i < lines.length; i++) {
+                if(!lines[i].trim()) continue;
+                // Split correctly handling potential quotes in CSV
+                let parts = lines[i].split(',');
+                
+                if (parts.length >= 7) {
+                    let matchup = parts[0].trim();
+                    let winner = parts[1].trim();
+                    let am_odds = parts[2].trim();
+                    let wager = parseFloat(parts[4].trim());
+                    let ret_val = parseFloat(parts[5].trim());
+                    let profit = parseFloat(parts[6].trim());
+
+                    if (isNaN(wager) || wager === 0) continue; 
+
+                    totalWager += wager;
+                    totalReturn += ret_val;
+                    totalProfit += profit;
+                    activeGames++;
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${matchup}</td>
+                        <td><strong>${winner}</strong></td>
+                        <td>${am_odds > 0 ? '+' + am_odds : am_odds}</td>
+                        <td class="positive">${wager.toFixed(2)}</td>
+                        <td class="positive">${ret_val.toFixed(2)}</td>
+                        <td class="positive">+${profit.toFixed(2)}</td>
+                    `;
+                    tbody.appendChild(tr);
+                }
             }
 
-            let a_p = (a_wins / 10000) * 100;
-            let h_p = (1 - (a_wins / 10000)) * 100;
-            let fav_n = a_p > h_p ? g.away_name : g.home_name;
-            let fav_code = TEAM_MAP[fav_n] || fav_n;
-            let fav_p = a_p > h_p ? a_p : h_p;
+            document.getElementById('loading').classList.add('hidden');
+            const dashboard = document.getElementById('dashboard');
+            dashboard.classList.remove('hidden');
 
-            let vegasOdds = oddsData[fav_code] || 0;
-            
-            let wager = 0;
-            let return_val = 0;
-            if (vegasOdds !== 0) {
-                wager = calculateKelly(fav_p, vegasOdds, KELLY_MULTIPLIER);
-                return_val = wager > 0 ? wager * getDecimalOdds(vegasOdds) : 0;
-            }
-
-            globalResults.push({
-                away: TEAM_MAP[g.away_name] || g.away_name,
-                home: TEAM_MAP[g.home_name] || g.home_name,
-                fav: fav_code,
-                fav_p: fav_p.toFixed(1),
-                odds: vegasOdds,
-                wager: wager,
-                return_val: return_val
-            });
-        }
-
-        document.getElementById('loading').classList.add('hidden');
-        renderTable();
-        document.getElementById('dashboard').classList.remove('hidden');
-    }
-
-    function renderTable() {
-        const tbody = document.getElementById('results-body');
-        tbody.innerHTML = ''; 
-        
-        let totalWager = 0, totalReturn = 0, activeGames = 0, oddsCount = 0;
-        globalResults.sort((a, b) => b.wager - a.wager);
-
-        globalResults.forEach(res => {
-            if (res.odds !== 0) oddsCount++;
-
-            if(res.wager > 0) {
-                totalWager += res.wager;
-                totalReturn += res.return_val;
-                activeGames++;
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${res.away} @ ${res.home}</td>
-                    <td><strong>${res.fav}</strong></td>
-                    <td>${res.fav_p}%</td>
-                    <td>${res.odds > 0 ? '+' + res.odds : res.odds}</td>
-                    <td class="positive">${res.wager.toFixed(2)}</td>
-                    <td class="positive">${res.return_val.toFixed(2)}</td>
+            const summaryBar = document.getElementById('summary-bar');
+            if (activeGames === 0) {
+                summaryBar.innerHTML = `<span style="color: var(--text-muted);">No active wagers for today.</span>`;
+            } else {
+                let roi = totalWager > 0 ? ((totalProfit / totalWager) * 100).toFixed(0) : 0;
+                summaryBar.innerHTML = `
+                    <span>Wagering <strong>${totalWager.toFixed(2)} units</strong> on <strong>${activeGames} games</strong>.</span>
+                    <span class="positive">Proj. Profit: +${totalProfit.toFixed(2)} (${roi}% ROI)</span>
                 `;
-                tbody.appendChild(tr);
             }
-        });
 
-        const summaryBar = document.getElementById('summary-bar');
-        
-        if (oddsCount === 0) {
-            summaryBar.innerHTML = `<span style="color: var(--text-muted);">Awaiting Vegas lines from Google Sheets...</span>`;
-        } else if (oddsCount > 0 && activeGames === 0) {
-            summaryBar.innerHTML = `<span style="color: var(--text-muted);">Odds loaded for ${oddsCount} games. No profitable edge found. Model passes.</span>`;
-        } else {
-            let profit = totalReturn - totalWager;
-            summaryBar.innerHTML = `
-                <span>Total Wager: <strong>${totalWager.toFixed(2)} units</strong> on <strong>${activeGames} games</strong>.</span>
-                <span class="positive">Proj. Profit: +${profit.toFixed(2)}</span>
-            `;
+        } catch (e) {
+            console.error(e);
+            document.getElementById('loading').innerHTML = "Could not fetch Today's Card. Have you published the sheet?";
         }
     }
 
-    // --- HISTORY AUTO-RUNNER & CHART GENERATION ---
+    // Fetch and display History Tracker
     async function loadHistory() {
         if(HISTORY_CSV_URL === "PASTE_BANKROLL_TRACKER_LINK_HERE") return; 
         try {
@@ -736,10 +376,7 @@
             const tbody = document.getElementById('history-body');
             tbody.innerHTML = ''; 
 
-            let chartDates = [];
-            let chartBankroll = [];
-            let chartProfit = [];
-            let chartColors = [];
+            let chartDates = [], chartBankroll = [], chartProfit = [], chartColors = [];
 
             for (let i = 1; i < lines.length; i++) {
                 if(!lines[i].trim()) continue;
@@ -777,71 +414,28 @@
             }
 
             generateCharts(chartDates, chartBankroll, chartProfit, chartColors);
-
-        } catch (e) {
-            console.error("Could not fetch History Sheet:", e);
-        }
+        } catch (e) { console.error("Could not fetch History Sheet:", e); }
     }
 
     function generateCharts(dates, bankrolls, profits, colors) {
-        Chart.defaults.color = '#8b949e';
-        Chart.defaults.font.family = 'Inter, sans-serif';
+        Chart.defaults.color = '#8b949e'; Chart.defaults.font.family = 'Inter, sans-serif';
         const gridOptions = { color: '#2d313b' };
 
-        const ctxBankroll = document.getElementById('bankrollChart').getContext('2d');
-        new Chart(ctxBankroll, {
+        new Chart(document.getElementById('bankrollChart').getContext('2d'), {
             type: 'line',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: 'Ending Bankroll ($)',
-                    data: bankrolls,
-                    borderColor: '#22d3ee', 
-                    backgroundColor: 'rgba(34, 211, 238, 0.1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.3, 
-                    pointRadius: 3,
-                    pointBackgroundColor: '#22d3ee'
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { grid: gridOptions },
-                    y: { grid: gridOptions }
-                },
-                plugins: { legend: { display: false } }
-            }
+            data: { labels: dates, datasets: [{ label: 'Ending Bankroll', data: bankrolls, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#22d3ee' }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: gridOptions }, y: { grid: gridOptions } }, plugins: { legend: { display: false } } }
         });
 
-        const ctxProfit = document.getElementById('profitChart').getContext('2d');
-        new Chart(ctxProfit, {
+        new Chart(document.getElementById('profitChart').getContext('2d'), {
             type: 'bar',
-            data: {
-                labels: dates,
-                datasets: [{
-                    label: 'Daily P/L ($)',
-                    data: profits,
-                    backgroundColor: colors,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { grid: gridOptions },
-                    y: { grid: gridOptions }
-                },
-                plugins: { legend: { display: false } }
-            }
+            data: { labels: dates, datasets: [{ label: 'Daily P/L ($)', data: profits, backgroundColor: colors, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: gridOptions }, y: { grid: gridOptions } }, plugins: { legend: { display: false } } }
         });
     }
 
     window.onload = () => {
-        runEngine();
+        loadTodaysCard();
         loadHistory();
     };
 </script>

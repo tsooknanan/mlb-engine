@@ -240,7 +240,7 @@
                     <canvas id="bankrollChart"></canvas>
                 </div>
                 <div class="chart-wrapper">
-                    <h3 class="chart-title">Daily Profit / Loss ($)</h3>
+                    <h3 class="chart-title">Daily Profit / Loss (Units)</h3>
                     <canvas id="profitChart"></canvas>
                 </div>
             </div>
@@ -283,10 +283,7 @@
     // DATA LINKS (UPDATE THESE)
     // ==========================================
     
-    // 1. Link to your NEW "Today's Card" CSV Tab
     const TODAYS_CARD_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=706384976&single=true&output=csv";
-    
-    // 2. Link to your existing "Bankroll Tracker" CSV Tab
     const HISTORY_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSqlnsdxrlUeBS6eT4-15sXC6FRl_MTmfSbmNNI-m9VXS4v7NfPq2zt2oM2BjWdKCEe0qplRYN2Ih4R/pub?gid=1736165511&single=true&output=csv";
 
     // ==========================================
@@ -310,10 +307,8 @@
 
             let totalWager = 0, totalReturn = 0, totalProfit = 0, activeGames = 0;
 
-            // Assumes Python export order: Matchup, Winner, American Odds, Decimal Odds, Wager, Return, Profit
             for (let i = 1; i < lines.length; i++) {
                 if(!lines[i].trim()) continue;
-                // Split correctly handling potential quotes in CSV
                 let parts = lines[i].split(',');
                 
                 if (parts.length >= 7) {
@@ -383,7 +378,7 @@
                 let parts = lines[i].split(',');
                 
                 if (parts.length >= 7) {
-                    let date = parts[0].trim();
+                    let dateStr = parts[0].trim();
                     let startBank = parseFloat(parts[1].trim());
                     let endBank = parseFloat(parts[3].trim());
                     let dailyPL = parseFloat(parts[4].trim());
@@ -395,9 +390,10 @@
                     let profitClass = dailyPL >= 0 ? 'positive' : 'negative';
                     let profitSign = dailyPL > 0 ? '+' : '';
 
+                    // 1. Table Data (Keeps full date format)
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${date}</td>
+                        <td>${dateStr}</td>
                         <td>$${startBank.toFixed(2)}</td>
                         <td>$${endBank.toFixed(2)}</td>
                         <td>${unitsPlaced.toFixed(2)}</td>
@@ -406,10 +402,21 @@
                     `;
                     tbody.appendChild(tr);
 
-                    chartDates.push(date);
+                    // 2. Format Dates for Charts (e.g. "2026-05-14" becomes "May 14")
+                    let shortDate = dateStr;
+                    try {
+                        let d = new Date(dateStr + 'T00:00:00'); // T00:00:00 prevents timezone bugs
+                        if (!isNaN(d)) {
+                            shortDate = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                        }
+                    } catch(e) {}
+
+                    chartDates.push(shortDate);
                     chartBankroll.push(endBank);
-                    chartProfit.push(dailyPL);
-                    chartColors.push(dailyPL >= 0 ? '#10b981' : '#ef4444'); 
+                    
+                    // 3. Push UNITS instead of DOLLARS for the bar chart
+                    chartProfit.push(dailyPLUnits); 
+                    chartColors.push(dailyPLUnits >= 0 ? '#10b981' : '#ef4444'); 
                 }
             }
 
@@ -418,19 +425,28 @@
     }
 
     function generateCharts(dates, bankrolls, profits, colors) {
-        Chart.defaults.color = '#8b949e'; Chart.defaults.font.family = 'Inter, sans-serif';
+        Chart.defaults.color = '#8b949e'; 
+        Chart.defaults.font.family = 'Inter, sans-serif';
         const gridOptions = { color: '#2d313b' };
+        
+        // 4. Force X-Axis to angle labels and limit overlapping
+        const xTickOptions = {
+            maxRotation: 45,
+            minRotation: 45,
+            autoSkip: true,
+            maxTicksLimit: 12 // Prevents it from getting too crowded on mobile
+        };
 
         new Chart(document.getElementById('bankrollChart').getContext('2d'), {
             type: 'line',
             data: { labels: dates, datasets: [{ label: 'Ending Bankroll', data: bankrolls, borderColor: '#22d3ee', backgroundColor: 'rgba(34, 211, 238, 0.1)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: '#22d3ee' }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: gridOptions }, y: { grid: gridOptions } }, plugins: { legend: { display: false } } }
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: gridOptions, ticks: xTickOptions }, y: { grid: gridOptions } }, plugins: { legend: { display: false } } }
         });
 
         new Chart(document.getElementById('profitChart').getContext('2d'), {
             type: 'bar',
-            data: { labels: dates, datasets: [{ label: 'Daily P/L ($)', data: profits, backgroundColor: colors, borderRadius: 4 }] },
-            options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: gridOptions }, y: { grid: gridOptions } }, plugins: { legend: { display: false } } }
+            data: { labels: dates, datasets: [{ label: 'Daily P/L (Units)', data: profits, backgroundColor: colors, borderRadius: 4 }] },
+            options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: gridOptions, ticks: xTickOptions }, y: { grid: gridOptions } }, plugins: { legend: { display: false } } }
         });
     }
 

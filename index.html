@@ -188,9 +188,9 @@
             </div>
             <div class="about-model" id="about-model">
                 <h3>How The Engine Works</h3>
-                <p><strong>1. Data Ingestion:</strong> The engine pulls live daily schedules, park factors, and real-time statistics (OPS, WHIP, K/9) directly from the MLB Stats API.</p>
-                <p><strong>2. Monte Carlo Simulation:</strong> For every scheduled game, the model simulates the outcome 10,000 times using a Gaussian distribution based on expected run environments and team metrics.</p>
-                <p><strong>3. Kelly Value Generation:</strong> The derived win probabilities are compared against live Vegas lines. If a mathematical edge exists, the model outputs a strict fractional Kelly wager recommendation to optimize bankroll growth while minimizing risk.</p>
+                <p><strong>1. Data Ingestion:</strong> The engine pulls live daily schedules, park factors, and real-time statistics (OPS, WHIP, K/9) directly from the MLB Stats API and advanced statistics like WRC+ and FIP from the FanGraphs Database.</p>
+                <p><strong>2. Monte Carlo Simulation:</strong> For every scheduled game, the model simulates the outcome 10,000 times using a Gaussian distribution based on expected run environments and team metrics based off the stats the engine pulls.</p>
+                <p><strong>3. Kelly Value Generation:</strong> The derived win probabilities are compared against live Vegas lines. If a mathematical edge exists, the model outputs a strict fractional Kelly wager recommendation to optimize bankroll growth while minimizing risk and protecting your bankroll.</p>
             </div>
         </section>
 
